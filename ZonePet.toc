@@ -1,6 +1,6 @@
 ## Title: ZonePet
 ## Interface: 70300
 ## Author: Sarah Reichelt
-## Version: 1.0.1
+## Version: 1.0.2
 
 ZonePet.lua
