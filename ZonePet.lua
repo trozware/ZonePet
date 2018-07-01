@@ -38,7 +38,20 @@ ZonePet_EventFrame:SetScript("OnEvent",
 )
 
 function processEvent()
-    now = time()             -- time in seconds
+    if InCombatLockdown() == true then
+        C_Timer.After(3, 
+            function()
+                processEvent()
+            end
+        )
+        return
+    end
+
+    if IsFlying() == true or IsMounted() == true then
+        return
+    end
+
+    now = time()           -- time in seconds
     if now - ZonePet_LastPetChange < 300 then
         return
     end
@@ -50,11 +63,6 @@ function processEvent()
 end
 
 function processMountEvent()
-    if IsFlying() == true then
-        ZonePet_LastPetChange = 0
-        return
-    end
-
     if IsMounted() == false and C_PetJournal.GetSummonedPetGUID() == nil then
         ZonePet_LastPetChange = 0
         processEvent()
