@@ -2,8 +2,6 @@ local ZonePet_EventFrame = CreateFrame("Frame")
 ZonePet_EventFrame:RegisterEvent("PLAYER_LOGIN")
 ZonePet_EventFrame:RegisterEvent("ZONE_CHANGED")
 ZonePet_EventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
--- ZonePet_EventFrame:RegisterEvent("ZONE_CHANGED_INDOORS")
--- ZonePet_EventFrame:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
 
 ZonePet_LastPetChange = 0
 
@@ -40,54 +38,7 @@ function processEvent()
     if zone ~= nil and zone ~= "" then
         summonRandomPet(zone)
     end
-
-    -- local subZone = GetSubZoneText()
-
-    -- if zone ~= "" then
-    --     if subZone ~= "" then
-    --         print("|cFF00FFFF" .. subZone .. ", " .. zone)
-    --      else
-    --         print("|cFF00FFFF" .. zone)
-    --     end
-
-    --     if event == "ZONE_CHANGED" then
-    --         getPetData(zone)
-    --     end
-    -- else
-    --     print("|cFF00FFFF" .. "Unknown zone")
-    -- end
-
-    -- if IsMounted() then
-    --     mountName, mountID = getMountData()
-    --     if mountName == nil then
-    --         print("|cFFFFFF00" .. "Scheduled flight")
-    --         return
-    --     else
-    --         print("|cFFFFFF00" .. mountName .. " (ID: " .. mountID .. ")")
-    --     end
-
-    --     if IsFlying() then
-    --         print("|cFFFFFF00" .. "Mounted & flying")
-    --     else
-    --         print("|cFFFFFF00" .. "Mounted, not flying")
-    --     end
-    -- elseif IsFlying() then
-    --     print("|cFFFFFF00" .. "Flying, not mounted")
-    -- else
-    --     print("|cFFFFFF00" .. "Not mounted")
-    -- end
 end
-
--- function getMountData() 
---     mountCount = C_MountJournal.GetNumDisplayedMounts()
---     for m = 1, mountCount do
---         creatureName, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, hideOnChar, isCollected, mountID  = C_MountJournal.GetDisplayedMountInfo(m)
---         if active then
---             return creatureName, mountID
---         end
---     end
---     return nil
--- end
 
 function summonRandomPet(zoneName)
     numPets, numOwned = C_PetJournal.GetNumPets()
