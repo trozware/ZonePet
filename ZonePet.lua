@@ -3,7 +3,7 @@ ZonePet_EventFrame:RegisterEvent("PLAYER_LOGIN")
 ZonePet_EventFrame:RegisterEvent("ZONE_CHANGED")
 ZonePet_EventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 ZonePet_EventFrame:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
-ZonePet_EventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
+-- ZonePet_EventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 
 local ZonePet_LastPetChange = 0
 local ZonePet_LastEventTrigger = 0
@@ -20,15 +20,7 @@ local ZonePet_LastEventTrigger = 0
 
 ZonePet_EventFrame:SetScript("OnEvent",
     function(self, event, ...)
-        now = time()           -- time in seconds
-        if now - ZonePet_LastEventTrigger < 3 then
-            return
-        end
-        ZonePet_LastEventTrigger = now
-    
-        if event == "PLAYER_LOGIN" or event == "ZONE_CHANGED_NEW_AREA" then
-            ZonePet_LastPetChange = 0
-
+        if event == "PLAYER_LOGIN" then
             -- data not ready immediately but force update
             C_Timer.After(1, 
                 function()
@@ -58,6 +50,12 @@ function processEvent()
         return
     end
 
+    now = time()           -- time in seconds
+    if now - ZonePet_LastEventTrigger < 3 then
+        return
+    end
+    ZonePet_LastEventTrigger = now
+
     if IsFlying() == true or IsMounted() == true then
         return
     end
@@ -77,7 +75,6 @@ end
 
 function processMountEvent()
     if C_PetJournal.GetSummonedPetGUID() == nil then
-        ZonePet_LastPetChange = 0
         processEvent()
     end
 end
