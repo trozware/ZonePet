@@ -136,10 +136,12 @@ function summonRandomPet(zoneName, count)
     C_Timer.After(1, 
         function()
             summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
-            speciesID, customName, level, xp, maxXp, displayID, isFavorite, 
-            name, icon, petType, creatureID, sourceText, description, 
-            isWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
-            print("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned " .. name .. ".")
+            if summonedPetGUID then
+                speciesID, customName, level, xp, maxXp, displayID, isFavorite, 
+                name, icon, petType, creatureID, sourceText, description, 
+                isWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
+                print("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned " .. name .. ".")
             end
+        end
     )
 end
