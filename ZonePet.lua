@@ -5,8 +5,8 @@ ZonePet_EventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 ZonePet_EventFrame:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
 ZonePet_EventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 
-ZonePet_LastPetChange = 0
-ZonePet_LastMountEventTrigger = 0
+local ZonePet_LastPetChange = 0
+local ZonePet_LastEventTrigger = 0
 
 -- Summon flying pet during flight?
 
@@ -20,23 +20,24 @@ ZonePet_LastMountEventTrigger = 0
 
 ZonePet_EventFrame:SetScript("OnEvent",
     function(self, event, ...)
-         if event == "PLAYER_LOGIN" or event == "ZONE_CHANGED_NEW_AREA" then
+        now = time()           -- time in seconds
+        if now - ZonePet_LastEventTrigger < 3 then
+            return
+        end
+        ZonePet_LastEventTrigger = now
+    
+        if event == "PLAYER_LOGIN" or event == "ZONE_CHANGED_NEW_AREA" then
             ZonePet_LastPetChange = 0
 
             -- data not ready immediately but force update
-            C_Timer.After(2, 
+            C_Timer.After(1, 
                 function()
+                    ZonePet_LastPetChange = 0
                     processEvent()
                 end
         )
         elseif event == "PLAYER_MOUNT_DISPLAY_CHANGED" or event == "UPDATE_SHAPESHIFT_FORM" then
-            now = time()           -- time in seconds
-            if now - ZonePet_LastMountEventTrigger < 3 then
-                return
-            end
-            ZonePet_LastMountEventTrigger = now
-        
-            C_Timer.After(1, 
+             C_Timer.After(1, 
                 function()
                     processMountEvent()
                 end
@@ -61,9 +62,11 @@ function processEvent()
         return
     end
 
-    now = time()           -- time in seconds
-    if now - ZonePet_LastPetChange < 300 then
-        return
+    if C_PetJournal.GetSummonedPetGUID() ~= nil then
+        now = time()           -- time in seconds
+        if now - ZonePet_LastPetChange < 300 then
+            return
+        end
     end
 
     local zone = GetZoneText()
@@ -121,15 +124,25 @@ function summonPet(zoneName)
         until id ~= summonedPetGUID
 
         ZonePet_LastPetChange = now
-        print("|c0000FF00ZonePet: " .. "|c0000FFFFSummoning " .. name .. " from " .. zoneName ..
-            ". You own " .. #validPets .. " pets from this zone.")
+        -- .. ". You own " .. #validPets .. " pets from this zone.")
         C_PetJournal.SummonPetByGUID(id)
+        print("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned " .. name .. " from " .. zoneName.. ".")
     end
 end
 
 function summonRandomPet(zoneName, count)
     ZonePet_LastPetChange = now
-    message = count == 1 and ". You own 1 pet from this zone." or ". You own " .. count .. " pets from this zone."
-    print("|c0000FF00ZonePet: " .. "|c0000FFFFSummoning a random pet for " .. zoneName .. message)
+    -- message = count == 1 and ". You own 1 pet from this zone." or ". You own " .. count .. " pets from this zone."
+    print("|c0000FF00ZonePet: " .. "|c0000FFFFSummoning a random pet for " .. zoneName .. ".")
     C_PetJournal.SummonRandomPet()
+
+    C_Timer.After(1, 
+        function()
+            summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
+            speciesID, customName, level, xp, maxXp, displayID, isFavorite, 
+            name, icon, petType, creatureID, sourceText, description, 
+            isWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
+            print("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned " .. name .. ".")
+            end
+    )
 end
