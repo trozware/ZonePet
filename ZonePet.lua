@@ -21,6 +21,7 @@ local ZonePet_LastError = 0
 
 ZonePet_EventFrame:SetScript("OnEvent",
     function(self, event, ...)
+        -- print(event)
         if event == "PLAYER_LOGIN" then
             -- data not ready immediately but force update
             C_Timer.After(1,
@@ -139,7 +140,8 @@ function summonRandomPet(zoneName, count)
     ZonePet_LastPetChange = now
     -- message = count == 1 and ". You own 1 pet from this zone." or ". You own " .. count .. " pets from this zone."
     -- print("|c0000FF00ZonePet: " .. "|c0000FFFFSummoning a random pet for " .. zoneName .. ".")
-    C_PetJournal.SummonRandomPet()
+    -- print("Summoning random")
+    C_PetJournal.SummonRandomPet(true)
     checkSummonedPet("")
  end
 
@@ -158,6 +160,7 @@ function checkSummonedPet(zoneName)
                 end
                 ZonePet_LastError = 0
             else
+                -- print("Error summoning pet")
                 ZonePet_LastError = time()
             end
         end
