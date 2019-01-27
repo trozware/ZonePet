@@ -1,6 +1,7 @@
 ## Title: ZonePet
-## Interface: 80000
+## Interface: 80100
 ## Author: Sarah Reichelt
-## Version: 1.1.0
+## Version: 1.3.0
+## SavedVariables: zonePetMiniMap
 
 ZonePet.lua
