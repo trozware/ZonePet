@@ -242,9 +242,10 @@ end
 function dataForCurrentPet()
   summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
   if summonedPetGUID then
-   _, _, _, _, _, _, _, name, _, _, _, _, description,
-    _, _, _, _, _ = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
-    return { name = name, desc = description }
+    speciesID, customName, level, xp, maxXp, displayID, isFavorite,
+      name, icon, petType, creatureID, sourceText, description,
+      sWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
+    return { name = name, desc = description, icon = icon }
   end
   return nil
 end
@@ -359,6 +360,10 @@ function ZonePet:Initialize()
   b:SetScript("OnEnter", function(self,event)
     GameTooltip:SetOwner(self, "ANCHOR_NONE")
     GameTooltip:SetPoint("TOPRIGHT", self, "BOTTOM")
+    GameTooltip:SetScript("OnHide", function(self, event)
+      -- this should make sure it never appears in the wrong place
+      GameTooltip:ClearLines()
+    end)
     showTooltip()
   end)
 
