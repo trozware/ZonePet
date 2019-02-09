@@ -13,6 +13,8 @@ local ZonePet_LastError = 0
 
 local stealthed = IsStealthed()
 local previousMessage = ""
+local haveDismissed = false
+local tooltipVisible = false
 
 -- "|c000000FF" = blue
 -- "|c0000FF00" = green
@@ -55,6 +57,10 @@ ZonePet_EventFrame:SetScript("OnEvent",
 )
 
 function processEvent()
+  if haveDismissed == true then
+    return
+  end
+
   spellName, _, _, _, _, _, _, _, _, _ = UnitCastingInfo("player")
   channelName, _, _, _, _, _, _, _ = UnitChannelInfo("player")
   inCombat = InCombatLockdown()
@@ -90,6 +96,10 @@ function processEvent()
 end 
 
 function processMountEvent()
+  if haveDismissed == true then
+    return
+  end
+
   currentPetID = C_PetJournal.GetSummonedPetGUID()
   if currentPetID == nil then
     ZonePet_LastError = 0
@@ -137,7 +147,7 @@ function summonPet(zoneName)
   if #validPets == 0 then
     summonRandomPet(zoneName, {})
   else
-    if #validPets < 4 then
+    if #validPets < 8 then
       summonRandomPet(zoneName, validPets)
       return
     end
@@ -232,7 +242,7 @@ function checkSummonedPet(zoneName)
         ZonePet_LastError = time()
       end
 
-      if GameTooltip:NumLines() > 0 then
+      if tooltipVisible == true then
         showTooltip()
       end
     end
@@ -327,6 +337,7 @@ function ZonePet:Initialize()
         zonePetMiniMap.Hidden=true
         ZonepetCommandHandler('help')
       else
+        haveDismissed = true
         dismissCurrentPet()
         checkSummonedPet('')
       end
@@ -335,6 +346,7 @@ function ZonePet:Initialize()
         zonePetMiniMap.favsOnly = not zonePetMiniMap.favsOnly
         showTooltip()
       end
+      haveDismissed = false
       summonForZone()
     end
   end)
@@ -362,7 +374,7 @@ function ZonePet:Initialize()
     GameTooltip:SetPoint("TOPRIGHT", self, "BOTTOM")
     GameTooltip:SetScript("OnHide", function(self, event)
       -- this should make sure it never appears in the wrong place
-      GameTooltip:ClearLines()
+      tooltipVisible = false
     end)
     showTooltip()
   end)
@@ -383,6 +395,9 @@ function showTooltip()
   if petData then
     GameTooltip:AddLine('\n' .. petData.name, 0, 1, 0)
     GameTooltip:AddLine(petData.desc, 0, 1, 1, true)
+  elseif haveDismissed then
+    msg = "You have dismissed your pet. No new pet will be summoned until you left-click here or use '/zp new'."
+    GameTooltip:AddLine('\n' .. msg , 0, 1, 1, true)
   end
   
   GameTooltip:AddLine("\nLeft-click to summon a new pet, from this zone if possible.")
@@ -400,6 +415,7 @@ function showTooltip()
   GameTooltip:AddLine("Type '/zp mini' in Chat to show this button again.")
 
   GameTooltip:Show()
+  tooltipVisible = true
 end
     
 local MinimapShapes = {
