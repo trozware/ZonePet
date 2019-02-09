@@ -11,19 +11,11 @@ local ZonePet_LastPetChange = 0
 local ZonePet_LastEventTrigger = 0
 local ZonePet_LastError = 0
 
-local stealthed = IsStealthed()
-local previousMessage = ""
-local haveDismissed = false
-local tooltipVisible = false
-
--- "|c000000FF" = blue
--- "|c0000FF00" = green
--- "|c00FF0000" = red
--- "|c0000FFFF" = cyan
--- leading FF - not sure what that does
--- "|cFFFFFF00"  = yellow
--- NORMAL_FONT_COLOR (1.0, 0.82, 0.0).
--- "|c00FFD100" 
+local ZonePet_Stealthed = IsStealthed()
+local ZonePet_PreviousMessage = ""
+local ZonePet_HaveDismissed = false
+local ZonePet_TooltipVisible = false
+ 
 
 ZonePet_EventFrame:SetScript("OnEvent",
   function(self, event, ...)
@@ -32,32 +24,32 @@ ZonePet_EventFrame:SetScript("OnEvent",
       ZonePet:Initialize()
       ZonePet:MinimapUpdatePosition()
     elseif event == "UPDATE_STEALTH" then
-      stealthed = IsStealthed()
-      if stealthed == true and UnitIsPVP("player") == true then
-        dismissCurrentPet()
+      ZonePet_Stealthed = IsStealthed()
+      if ZonePet_Stealthed == true and UnitIsPVP("player") == true then
+        ZonePet_dismissCurrentPet()
       end
     elseif event == "PLAYER_LOGIN" then
-      -- data not ready immediately but force update
+      -- data not ready immediately but force update in 1 second
       C_Timer.After(1,
         function()
           ZonePet_LastPetChange = 0
-          processEvent()
+          ZonePet_processEvent()
         end
       )
     elseif event == "PLAYER_MOUNT_DISPLAY_CHANGED" or event == "UPDATE_SHAPESHIFT_FORM" then
       C_Timer.After(3,
           function()
-          processMountEvent()
+          ZonePet_processMountEvent()
           end
       )
     else
-      processEvent()
+      ZonePet_processEvent()
     end  
   end
 )
 
-function processEvent()
-  if haveDismissed == true then
+function ZonePet_processEvent()
+  if ZonePet_HaveDismissed == true then
     return
   end
 
@@ -68,7 +60,7 @@ function processEvent()
   if inCombat == true or isDead == true or spellName ~= nil or channelName ~= nil then
     C_Timer.After(5,
       function()
-        processEvent()
+        ZonePet_processEvent()
       end
     )
     return
@@ -92,34 +84,34 @@ function processEvent()
    return
   end
 
-  summonForZone()
+  ZonePet_summonForZone()
 end 
 
-function processMountEvent()
-  if haveDismissed == true then
+function ZonePet_processMountEvent()
+  if ZonePet_HaveDismissed == true then
     return
   end
 
   currentPetID = C_PetJournal.GetSummonedPetGUID()
   if currentPetID == nil then
     ZonePet_LastError = 0
-    processEvent()
+    ZonePet_processEvent()
   end
 end
 
-function summonForZone()
+function ZonePet_summonForZone()
   local zone = GetZoneText()
   if zone ~= nil and zone ~= "" then
-    summonPet(zone)
+    ZonePet_summonPet(zone)
   end
 end
 
-function summonPet(zoneName)
-  if stealthed == true then
+function ZonePet_summonPet(zoneName)
+  if ZonePet_Stealthed == true then
     if UnitIsPVP("player") == true then
-      dismissCurrentPet()
+      ZonePet_dismissCurrentPet()
     end
-    displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFStealth - no pet summoned.")
+    ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFStealth - no pet summoned.")
     return
   end
 
@@ -145,11 +137,18 @@ function summonPet(zoneName)
   -- print("|c0000FF00ZonePet: " .. "|c0000FFFFYou own " .. #validPets .. " pets from " .. zoneName)
 
   if #validPets == 0 then
-    summonRandomPet(zoneName, {})
+    ZonePet_summonRandomPet(zoneName, {})
   else
-    if #validPets < 8 then
-      summonRandomPet(zoneName, validPets)
-      return
+    if #validPets < 12 then
+      preferredCount = 12
+      if #validPets < 6 then
+        preferredCount = #validPets * 2
+      end
+      if preferredCount < 6 then
+        preferredCount = 6
+      end
+      -- list enough random pets to bring it up to a decent number, then choose
+      validPets = ZonePet_addRandomPets(validPets, zonePetMiniMap.favsOnly, preferredCount)
     end
   
     repeat
@@ -158,28 +157,29 @@ function summonPet(zoneName)
       id = validPets[petIndex].ID
     until id ~= summonedPetGUID
 
+    ZonePet_HaveDismissed = false
     ZonePet_LastPetChange = now
     -- .. ". You own " .. #validPets .. " pets from this zone.")
 
     C_PetJournal.SummonPetByGUID(id)
-    checkSummonedPet(zoneName)
+    ZonePet_checkSummonedPet(zoneName)
   end
 end
 
-function summonRandomPet(zoneName, startingPets)
+function ZonePet_summonRandomPet(zoneName, startingPets)
   ZonePet_LastPetChange = now
 
-  favPetId = pickRandomPet(zonePetMiniMap.favsOnly, startingPets)
+  favPetId = ZonePet_pickRandomPet(zonePetMiniMap.favsOnly, startingPets)
   if favPetId ~= '-1' then
     C_PetJournal.SummonPetByGUID(id)
   else
     C_PetJournal.SummonRandomPet(true)
   end
 
-  checkSummonedPet(zoneName)
+  ZonePet_checkSummonedPet(zoneName)
 end
 
-function pickRandomPet(favsOnly, startingPets)
+function ZonePet_pickRandomPet(favsOnly, startingPets)
   numPets, numOwned = C_PetJournal.GetNumPets()
   petList = startingPets
 
@@ -209,7 +209,34 @@ function pickRandomPet(favsOnly, startingPets)
   return id
 end
 
-function checkSummonedPet(zoneName)
+function ZonePet_addRandomPets(validPets, favsOnly, count)
+  numPets, numOwned = C_PetJournal.GetNumPets()
+  petList = {}
+
+  for n = 1, numOwned do
+    petID, speciesID, owned, customName, level, favorite, isRevoked,
+    speciesName, icon, petType, companionID, tooltip, description,
+    isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
+
+    if owned then
+      if favsOnly == false or favorite == true then
+        petList[#petList + 1] = { name = speciesName, ID = petID }
+      end
+    end
+  end
+
+  if #petList == 0 then
+    return {}
+  end
+
+  repeat
+    petIndex = math.random(#petList)
+    validPets[#validPets + 1] = petList[petIndex]
+  until #validPets == count
+  return validPets
+end
+
+function ZonePet_checkSummonedPet(zoneName)
   C_Timer.After(2,
     function()
       summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
@@ -229,27 +256,26 @@ function checkSummonedPet(zoneName)
           favText = 'favorite '
         end
         if zoneMatches == false then
-            displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned random " .. favText .. "pet: " .. "|c00FFD100" .. name .. ".")
+            ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned random " .. favText .. "pet: " .. "|c00FFD100" .. name .. ".")
         else
-            displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned " .. favText .. "|c00FFD100" .. name .. "|c0000FFFF from " .. zoneName.. ".")
+            ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned " .. favText .. "|c00FFD100" .. name .. "|c0000FFFF from " .. zoneName.. ".")
         end
         if description and description ~= "" then
           ChatFrame1:AddMessage("|c0000FFFF" .. description)
         end
         ZonePet_LastError = 0
       else
-        -- print("Error summoning pet")
         ZonePet_LastError = time()
       end
 
-      if tooltipVisible == true then
-        showTooltip()
+      if ZonePet_TooltipVisible == true then
+        ZonePet_showTooltip()
       end
     end
   )
 end
 
-function dataForCurrentPet()
+function ZonePet_dataForCurrentPet()
   summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
   if summonedPetGUID then
     speciesID, customName, level, xp, maxXp, displayID, isFavorite,
@@ -260,17 +286,17 @@ function dataForCurrentPet()
   return nil
 end
 
-function dismissCurrentPet()
+function ZonePet_dismissCurrentPet()
   summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
   if summonedPetGUID then
     C_PetJournal.SummonPetByGUID(summonedPetGUID)
-    displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFDismissing pet.")
+    ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFDismissing pet.")
   end
 end
 
-function displayMessage(msg)
-  if msg ~= previousMessage then
-    previousMessage = msg
+function ZonePet_displayMessage(msg)
+  if msg ~= ZonePet_PreviousMessage then
+    ZonePet_PreviousMessage = msg
     ChatFrame1:AddMessage(msg)
   end
 end
@@ -337,17 +363,16 @@ function ZonePet:Initialize()
         zonePetMiniMap.Hidden=true
         ZonepetCommandHandler('help')
       else
-        haveDismissed = true
-        dismissCurrentPet()
-        checkSummonedPet('')
+        ZonePet_HaveDismissed = true
+        ZonePet_dismissCurrentPet()
+        ZonePet_checkSummonedPet('')
       end
     else
       if IsShiftKeyDown() then
         zonePetMiniMap.favsOnly = not zonePetMiniMap.favsOnly
-        showTooltip()
+        ZonePet_showTooltip()
       end
-      haveDismissed = false
-      summonForZone()
+      ZonePet_summonForZone()
     end
   end)
 
@@ -374,9 +399,9 @@ function ZonePet:Initialize()
     GameTooltip:SetPoint("TOPRIGHT", self, "BOTTOM")
     GameTooltip:SetScript("OnHide", function(self, event)
       -- this should make sure it never appears in the wrong place
-      tooltipVisible = false
+      ZonePet_TooltipVisible = false
     end)
-    showTooltip()
+    ZonePet_showTooltip()
   end)
 
   b:SetScript("OnLeave", function(self,event)
@@ -388,14 +413,14 @@ function ZonePet:Initialize()
 	b.dragme = false
 end
 
-function showTooltip()
+function ZonePet_showTooltip()
   GameTooltip:SetText("ZonePet", 1, 1, 1)
   
-  petData = dataForCurrentPet()
+  petData = ZonePet_dataForCurrentPet()
   if petData then
     GameTooltip:AddLine('\n' .. petData.name, 0, 1, 0)
     GameTooltip:AddLine(petData.desc, 0, 1, 1, true)
-  elseif haveDismissed then
+  elseif ZonePet_HaveDismissed then
     msg = "You have dismissed your pet. No new pet will be summoned until you left-click here or use '/zp new'."
     GameTooltip:AddLine('\n' .. msg , 0, 1, 1, true)
   end
@@ -415,7 +440,7 @@ function showTooltip()
   GameTooltip:AddLine("Type '/zp mini' in Chat to show this button again.")
 
   GameTooltip:Show()
-  tooltipVisible = true
+  ZonePet_TooltipVisible = true
 end
     
 local MinimapShapes = {
@@ -500,15 +525,17 @@ function ZonepetCommandHandler(msg)
     zonePetMiniMap.Button:Show()
     zonePetMiniMap.Hidden=false
   elseif msg == "dismiss" then
-    dismissCurrentPet()
+    ZonePet_HaveDismissed = true
+    ZonePet_dismissCurrentPet()
+    ZonePet_checkSummonedPet('')
   elseif msg == "change" or msg == "new" then
-    summonForZone()
+    ZonePet_summonForZone()
   elseif msg == "all" then
     zonePetMiniMap.favsOnly = false
-    summonForZone()
+    ZonePet_summonForZone()
   elseif msg == "fav" or msg == "favs" then
     zonePetMiniMap.favsOnly = true
-    summonForZone()
+    ZonePet_summonForZone()
   else
     msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp mini|c0000FFFF to show the ZonePet icon in the MiniMap."
     ChatFrame1:AddMessage(msg)

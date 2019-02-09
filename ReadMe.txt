@@ -6,6 +6,9 @@ Will not change more than once every 5 minutes, unless you go to a completely ne
     or you lose your pet due to flying.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+- v 1.4.0:
+  - Better selection if you only have a few pets from the zone.
+  - Improved handling of slash commands.
 v 1.3.2:
   - If you dismiss your pet using **ZonePet**, you will not get a new one until you left-click in the minimap button or use '/zp new'.
   - Tooltip should not appear anywhere except from the **ZonePet** minimap button.

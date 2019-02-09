@@ -42,8 +42,15 @@ If /zp conflicts with any other commands, use /zonepet instead.
 
 ---
 
+Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id1364247768) for quick access to suggested talent builds and stat priorities.
+
+---
+
 ### Version History
 
+- v 1.4.0:
+  - Better selection if you only have a few pets from the zone.
+  - Improved handling of slash commands.
 - v 1.3.2:
   - If you dismiss your pet using **ZonePet**, you will not get a new one until you left-click in the minimap button or use '/zp new'.
   - Tooltip should not appear anywhere except from the **ZonePet** minimap button.
