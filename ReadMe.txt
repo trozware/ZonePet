@@ -6,12 +6,13 @@ Will not change more than once every 5 minutes, unless you go to a completely ne
     or you lose your pet due to flying.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
-- v 1.4.0:
+v 1.4.1: ZonePet will not try to summon a pet if you are in a vehicle or on a flight.
+v 1.4.0:
   - Better selection if you only have a few pets from the zone.
   - Improved handling of slash commands.
 v 1.3.2:
-  - If you dismiss your pet using **ZonePet**, you will not get a new one until you left-click in the minimap button or use '/zp new'.
-  - Tooltip should not appear anywhere except from the **ZonePet** minimap button.
+  - If you dismiss your pet using ZonePet, you will not get a new one until you left-click in the minimap button or use '/zp new'.
+  - Tooltip should not appear anywhere except from the ZonePet minimap button.
   - More likely to summon a random pet when you only have a few pets from the current zone.
 v 1.3.1: More options in mninmap button and chat window. Type /zp for help.
 v 1.3.0: Now with a minimap button. Mouse over the button for help.

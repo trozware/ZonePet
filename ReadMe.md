@@ -48,6 +48,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 1.4.1: **ZonePet** will not try to summon a pet if you are in a vehicle or on a flight.
 - v 1.4.0:
   - Better selection if you only have a few pets from the zone.
   - Improved handling of slash commands.

@@ -1,0 +1,12 @@
+- v 1.4.1: ZonePet will not try to summon a pet if you are in a vehicle or on a flight.
+- v 1.4.0:
+  - Better selection if you only have a few pets from the zone.
+  - Improved handling of slash commands.
+- v 1.3.2:
+  - If you dismiss your pet using ZonePet, you will not get a new one until you left-click in the minimap button or use '/zp new'.
+  - Tooltip should not appear anywhere except from the ZonePet minimap button.
+  - More likely to summon a random pet when you only have a few pets from the current zone.
+- v 1.3.1: More options in minimap button and chat window. Type /zp for help.
+- v 1.3.0: Now with a minimap button. Mouse over the button for help.
+- v 1.2.0: Will not summon a pet if you are stealthed. In PvP mode, will dismiss a pet when you stealth.
+- v 1.0.0: Initial release

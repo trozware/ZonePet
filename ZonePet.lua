@@ -66,8 +66,10 @@ function ZonePet_processEvent()
     return
   end
 
-  if IsFlying() == true then
-    return
+  if IsFlying() == true or 
+    UnitInVehicle("player") == true or
+    UnitOnTaxi("player") == true then
+      return
   end
 
   now = time()           -- time in seconds
@@ -81,7 +83,7 @@ function ZonePet_processEvent()
       return
     end
   elseif now - ZonePet_LastError < 60 then
-   return
+    return
   end
 
   ZonePet_summonForZone()
@@ -96,7 +98,33 @@ function ZonePet_processMountEvent()
   if currentPetID == nil then
     ZonePet_LastError = 0
     ZonePet_processEvent()
+  else
+    petFromZone = ZonePet_petIsFromThisZone(currentPetID)
+    if petFromZone == false then
+      -- if landed from flight in a different zone and 
+      -- this pet is not from the new zone, force a change
+      ZonePet_LastPetChange = 0
+      ZonePet_LastEventTrigger = 0
+      ZonePet_LastError = 0
+      ZonePet_processEvent()
+    end
   end
+end
+
+function ZonePet_petIsFromThisZone(currentPetID)
+  speciesID, customName, level, xp, maxXp, displayID, isFavorite,
+  name, icon, petType, creatureID, sourceText, description,
+  isWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(currentPetID)
+
+  zoneName = GetZoneText()
+  if zoneName == nil and zoneName == "" then
+    return false
+  end
+
+  if sourceText and string.find(sourceText, zoneName) then
+    return true
+  end
+  return false
 end
 
 function ZonePet_summonForZone()
