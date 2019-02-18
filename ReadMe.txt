@@ -6,6 +6,7 @@ Will not change more than once every 5 minutes, unless you go to a completely ne
     or you lose your pet due to flying.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+v 1.4.2: Better time management for summoning a new pet.
 v 1.4.1: ZonePet will not try to summon a pet if you are in a vehicle or on a flight.
 v 1.4.0:
   - Better selection if you only have a few pets from the zone.

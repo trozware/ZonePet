@@ -72,7 +72,7 @@ function ZonePet_processEvent()
       return
   end
 
-  now = time()           -- time in seconds
+  now = GetTime()           -- time in seconds
   if now - ZonePet_LastEventTrigger < 3 then
     return
   end
@@ -186,7 +186,7 @@ function ZonePet_summonPet(zoneName)
     until id ~= summonedPetGUID
 
     ZonePet_HaveDismissed = false
-    ZonePet_LastPetChange = now
+    ZonePet_LastPetChange = GetTime()
     -- .. ". You own " .. #validPets .. " pets from this zone.")
 
     C_PetJournal.SummonPetByGUID(id)
@@ -195,7 +195,7 @@ function ZonePet_summonPet(zoneName)
 end
 
 function ZonePet_summonRandomPet(zoneName, startingPets)
-  ZonePet_LastPetChange = now
+  ZonePet_LastPetChange = GetTime()
 
   favPetId = ZonePet_pickRandomPet(zonePetMiniMap.favsOnly, startingPets)
   if favPetId ~= '-1' then
