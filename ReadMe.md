@@ -15,7 +15,7 @@ If you have no pets or only a few pets from the zone, you may see a random pet i
 
 ### Usage
 
-Install the add-on and when you log in, you will summon a pet automatically. Whenever you enter a new zone, land from a flight or after 5 minutes with the same pet, a different pet will be summoned.
+Install the add-on and when you log in, you will summon a pet automatically. After 5 minutes with the same pet, or when you lose you pet, a different pet will be summoned.
 
 Read the pet's name and description in the Chat window - the descriptions can be very funny - yet another way we are missing out on some good content.
 
@@ -48,6 +48,10 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 1.4.3:
+  - Stopped duplicate messages appearing.
+  - Reduced frequency of pet change after dismounting.
+  - Fixed intermittent Lua error when logging in.
 - v 1.4.2: Better time management for summoning a new pet.
 - v 1.4.1: **ZonePet** will not try to summon a pet if you are in a vehicle or on a flight.
 - v 1.4.0:

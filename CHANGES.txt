@@ -1,3 +1,7 @@
+- v 1.4.3:
+  - Stopped duplicate messages appearing.
+  - Reduced frequency of pet change after dismounting.
+  - Fixed intermittent Lua error when logging in.
 - v 1.4.2: Better time management for summoning a new pet.
 - v 1.4.1: ZonePet will not try to summon a pet if you are in a vehicle or on a flight.
 - v 1.4.0:

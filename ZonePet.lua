@@ -15,7 +15,7 @@ local ZonePet_Stealthed = IsStealthed()
 local ZonePet_PreviousMessage = ""
 local ZonePet_HaveDismissed = false
 local ZonePet_TooltipVisible = false
- 
+
 
 ZonePet_EventFrame:SetScript("OnEvent",
   function(self, event, ...)
@@ -29,8 +29,8 @@ ZonePet_EventFrame:SetScript("OnEvent",
         ZonePet_dismissCurrentPet()
       end
     elseif event == "PLAYER_LOGIN" then
-      -- data not ready immediately but force update in 1 second
-      C_Timer.After(1,
+      -- data not ready immediately but force update in 5 seconds
+      C_Timer.After(5,
         function()
           ZonePet_LastPetChange = 0
           ZonePet_processEvent()
@@ -99,15 +99,15 @@ function ZonePet_processMountEvent()
     ZonePet_LastError = 0
     ZonePet_processEvent()
   else
-    petFromZone = ZonePet_petIsFromThisZone(currentPetID)
-    if petFromZone == false then
-      -- if landed from flight in a different zone and 
-      -- this pet is not from the new zone, force a change
-      ZonePet_LastPetChange = 0
-      ZonePet_LastEventTrigger = 0
-      ZonePet_LastError = 0
-      ZonePet_processEvent()
-    end
+    -- petFromZone = ZonePet_petIsFromThisZone(currentPetID)
+    -- if petFromZone == false then
+    --   -- if landed from flight in a different zone and 
+    --   -- this pet is not from the new zone, force a change
+    --   ZonePet_LastPetChange = 0
+    --   ZonePet_LastEventTrigger = 0
+    --   ZonePet_LastError = 0
+    --   ZonePet_processEvent()
+    -- end
   end
 end
 
@@ -228,6 +228,13 @@ function ZonePet_pickRandomPet(favsOnly, startingPets)
   end
 
   summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
+  if summonedPetGUID == nil then
+    petIndex = math.random(#petList)
+    name = petList[petIndex].name
+    id = petList[petIndex].ID
+    return id
+  end
+
   repeat
     petIndex = math.random(#petList)
     name = petList[petIndex].name
@@ -289,7 +296,7 @@ function ZonePet_checkSummonedPet(zoneName)
             ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned " .. favText .. "|c00FFD100" .. name .. "|c0000FFFF from " .. zoneName.. ".")
         end
         if description and description ~= "" then
-          ChatFrame1:AddMessage("|c0000FFFF" .. description)
+          ZonePet_displayMessage("|c0000FFFF" .. description)
         end
         ZonePet_LastError = 0
       else
@@ -330,7 +337,7 @@ function ZonePet_displayMessage(msg)
 end
 
 -----------------------------------------------------------------
--- MINIMP BUTTON FUNCTIONS
+-- MINIMAP BUTTON FUNCTIONS
 -----------------------------------------------------------------
 
 function ZonePet:Initialize()

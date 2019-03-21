@@ -2,10 +2,13 @@ ZonePet add-on for World of Warcraft
 ====================================
 
 Keeps a pet active at all times, using a pet native to the current zone if possible.
-Will not change more than once every 5 minutes, unless you go to a completely new zone
-    or you lose your pet due to flying.
+Will not change more than once every 5 minutes, unless you lose your pet.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+v 1.4.3:
+  - Stopped duplicate messages appearing.
+  - Reduced frequency of pet change after dismounting.
+  - Fixed intermittent Lua error when logging in.
 v 1.4.2: Better time management for summoning a new pet.
 v 1.4.1: ZonePet will not try to summon a pet if you are in a vehicle or on a flight.
 v 1.4.0:
