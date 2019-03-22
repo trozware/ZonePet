@@ -5,6 +5,8 @@ Keeps a pet active at all times, using a pet native to the current zone if possi
 Will not change more than once every 5 minutes, unless you lose your pet.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+v 1.4.4:
+  - Really fixed intermittent Lua error when logging in?
 v 1.4.3:
   - Stopped duplicate messages appearing.
   - Reduced frequency of pet change after dismounting.

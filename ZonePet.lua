@@ -1,5 +1,5 @@
 local ZonePet_EventFrame = CreateFrame("Frame")
-ZonePet_EventFrame:RegisterEvent("PLAYER_LOGIN")
+-- ZonePet_EventFrame:RegisterEvent("PLAYER_LOGIN")
 ZonePet_EventFrame:RegisterEvent("ZONE_CHANGED")
 ZonePet_EventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 ZonePet_EventFrame:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
@@ -73,7 +73,7 @@ function ZonePet_processEvent()
   end
 
   now = GetTime()           -- time in seconds
-  if now - ZonePet_LastEventTrigger < 3 then
+  if now - ZonePet_LastEventTrigger < 5 then
     return
   end
   ZonePet_LastEventTrigger = now
@@ -199,7 +199,7 @@ function ZonePet_summonRandomPet(zoneName, startingPets)
 
   favPetId = ZonePet_pickRandomPet(zonePetMiniMap.favsOnly, startingPets)
   if favPetId ~= '-1' then
-    C_PetJournal.SummonPetByGUID(id)
+    C_PetJournal.SummonPetByGUID(favPetId)
   else
     C_PetJournal.SummonRandomPet(true)
   end

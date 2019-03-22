@@ -48,6 +48,8 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 1.4.4:
+  - Really fixed intermittent Lua error when logging in?
 - v 1.4.3:
   - Stopped duplicate messages appearing.
   - Reduced frequency of pet change after dismounting.
