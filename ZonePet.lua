@@ -16,7 +16,6 @@ local ZonePet_PreviousMessage = ""
 local ZonePet_HaveDismissed = false
 local ZonePet_TooltipVisible = false
 
-
 ZonePet_EventFrame:SetScript("OnEvent",
   function(self, event, ...)
     -- print(event)
@@ -199,7 +198,11 @@ function ZonePet_summonRandomPet(zoneName, startingPets)
 
   favPetId = ZonePet_pickRandomPet(zonePetMiniMap.favsOnly, startingPets)
   if favPetId ~= '-1' then
-    C_PetJournal.SummonPetByGUID(favPetId)
+    pcall(
+      function()
+        C_PetJournal.SummonPetByGUID(favPetId)
+      end
+    )
   else
     C_PetJournal.SummonRandomPet(true)
   end
@@ -228,13 +231,6 @@ function ZonePet_pickRandomPet(favsOnly, startingPets)
   end
 
   summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
-  if summonedPetGUID == nil then
-    petIndex = math.random(#petList)
-    name = petList[petIndex].name
-    id = petList[petIndex].ID
-    return id
-  end
-
   repeat
     petIndex = math.random(#petList)
     name = petList[petIndex].name
@@ -449,29 +445,35 @@ function ZonePet:Initialize()
 end
 
 function ZonePet_showTooltip()
+  GameTooltip:ClearLines()
   GameTooltip:SetText("ZonePet", 1, 1, 1)
-  
+  GameTooltip:AddLine(" ")
+
+  -- standard gold color: FFD100 = 1, 0.82, 0
+
   petData = ZonePet_dataForCurrentPet()
   if petData then
-    GameTooltip:AddLine('\n' .. petData.name, 0, 1, 0)
+    GameTooltip:AddLine(petData.name, 0, 1, 0, true)
     GameTooltip:AddLine(petData.desc, 0, 1, 1, true)
   elseif ZonePet_HaveDismissed then
     msg = "You have dismissed your pet. No new pet will be summoned until you left-click here or use '/zp new'."
-    GameTooltip:AddLine('\n' .. msg , 0, 1, 1, true)
+    GameTooltip:AddLine(msg , 0, 1, 1, true)
   end
   
   GameTooltip:AddLine("\nLeft-click to summon a new pet, from this zone if possible.")
   GameTooltip:AddLine("Right-click to dismiss your current pet.")
+  GameTooltip:AddLine(" ")
 
   if zonePetMiniMap.favsOnly then
-    GameTooltip:AddLine("\nSelecting from favorite pets only.")
+    GameTooltip:AddLine("Selecting from favorite pets only.")
     GameTooltip:AddLine("Shift + Left-click to select from all pets.")
   else
-    GameTooltip:AddLine("\nSelecting from all pets.")
+    GameTooltip:AddLine("Selecting from all pets.")
     GameTooltip:AddLine("Shift + Left-click to select from favorite pets only.")
   end
 
-  GameTooltip:AddLine("\nShift + Right-click to hide this button.")
+  GameTooltip:AddLine(" ")
+  GameTooltip:AddLine("Shift + Right-click to hide this button.")
   GameTooltip:AddLine("Type '/zp mini' in Chat to show this button again.")
 
   GameTooltip:Show()
@@ -580,5 +582,5 @@ function ZonepetCommandHandler(msg)
     ChatFrame1:AddMessage(msg)
     msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp all|c0000FFFF or |cFFFFFFFF/zp fav|c0000FFFF to switch between all pets and favorite pets."
     ChatFrame1:AddMessage(msg)
-   end
+  end
 end

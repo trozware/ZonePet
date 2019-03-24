@@ -5,6 +5,9 @@ Keeps a pet active at all times, using a pet native to the current zone if possi
 Will not change more than once every 5 minutes, unless you lose your pet.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+v 1.4.5:
+  - Better text formatting in tooltip when using ElvUI.
+  - Still working on the intermittent error on login.
 v 1.4.4:
   - Really fixed intermittent Lua error when logging in?
 v 1.4.3:
@@ -23,3 +26,4 @@ v 1.3.2:
 v 1.3.1: More options in mninmap button and chat window. Type /zp for help.
 v 1.3.0: Now with a minimap button. Mouse over the button for help.
 v 1.2.0: Will not summon a pet if you are stealthed. In PvP mode, will dismiss a pet when you stealth.
+v 1.0.0: Initial release.

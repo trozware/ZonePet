@@ -48,6 +48,9 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 1.4.5:
+  - Better text formatting in tooltip when using ElvUI.
+  - Still working on the intermittent error on login.
 - v 1.4.4:
   - Really fixed intermittent Lua error when logging in?
 - v 1.4.3:
@@ -66,4 +69,4 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 - v 1.3.1: More options in minimap button and chat window. Type /zp for help.
 - v 1.3.0: Now with a minimap button. Mouse over the button for help.
 - v 1.2.0: Will not summon a pet if you are stealthed. In PvP mode, will dismiss a pet when you stealth.
-- v 1.0.0: Initial release
+- v 1.0.0: Initial release.
