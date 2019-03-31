@@ -445,6 +445,7 @@ function ZonePet:Initialize()
 end
 
 function ZonePet_showTooltip()
+  GameTooltip:SetOwner(GameTooltip:GetOwner(), "ANCHOR_NONE")
   GameTooltip:ClearLines()
   GameTooltip:SetText("ZonePet", 1, 1, 1)
   GameTooltip:AddLine(" ")

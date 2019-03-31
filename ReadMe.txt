@@ -5,6 +5,7 @@ Keeps a pet active at all times, using a pet native to the current zone if possi
 Will not change more than once every 5 minutes, unless you lose your pet.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+v 1.4.6: Stops icon appearing in over-sized tooltip.
 v 1.4.5:
   - Better text formatting in tooltip when using ElvUI.
   - Still working on the intermittent error on login.

@@ -48,6 +48,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 1.4.6: Stops icon appearing in over-sized tooltip.
 - v 1.4.5:
   - Better text formatting in tooltip when using ElvUI.
   - Still working on the intermittent error on login.
