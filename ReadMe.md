@@ -37,6 +37,7 @@ Mouse over the MiniMap button to see details about your currently summoned pet (
 - /zp fav - summon favorite pets only (if you have enough).
 - /zp all - choose from all your pets.
 - /zp mini - show the MiniMap button if you have hidden it.
+- /zp dupe - list any duplicate pets.
 
 If /zp conflicts with any other commands, use /zonepet instead.
 
