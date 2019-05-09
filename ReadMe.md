@@ -48,6 +48,9 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 1.4.7:
+  - Type '/zp dupe' in chat to list your duplicate pets.
+  - If you are doing Children's Week activiies with your orphan, or any similar questing with a special companion, temporarily disable ZonePet by right-clicking in the minimap button. Summoning a pet either with ZonePet or manually, will automatically dimiss companions like the orphan.
 - v 1.4.6: Stops icon appearing in over-sized tooltip.
 - v 1.4.5:
   - Better text formatting in tooltip when using ElvUI.

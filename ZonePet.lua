@@ -325,6 +325,39 @@ function ZonePet_dismissCurrentPet()
   end
 end
 
+function ZonePet_showDuplicates()
+  C_PetJournal.SetAllPetTypesChecked(true)
+  C_PetJournal.SetAllPetSourcesChecked(true)
+  C_PetJournal.ClearSearchFilter()
+
+  numPets, numOwned = C_PetJournal.GetNumPets()
+  summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
+  allPets = {}
+  dupePets = {}
+
+  for n = 1, numOwned do
+    petID, speciesID, owned, customName, level, favorite, isRevoked,
+    speciesName, icon, petType, companionID, tooltip, description,
+    isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
+
+    if allPets[speciesName] ~= nil then
+      dupePets[#dupePets + 1] = speciesName
+    end
+    allPets[speciesName] = petID
+  end
+  
+  if #dupePets == 0 then
+    msg = "|c0000FF00ZonePet: " .. "|c0000FFFFAll your pets are unique."
+    ChatFrame1:AddMessage(msg)
+  else
+    msg = "|c0000FF00ZonePet: " .. "|c0000FFFFYou have " .. #dupePets .. " duplicate pets:"
+    ChatFrame1:AddMessage(msg)
+    for n = 1, #dupePets do
+      ChatFrame1:AddMessage("    |c00FFD100" .. dupePets[n])
+    end
+  end
+end
+
 function ZonePet_displayMessage(msg)
   if msg ~= ZonePet_PreviousMessage then
     ZonePet_PreviousMessage = msg
@@ -574,6 +607,8 @@ function ZonepetCommandHandler(msg)
   elseif msg == "fav" or msg == "favs" then
     zonePetMiniMap.favsOnly = true
     ZonePet_summonForZone()
+  elseif msg == "dupe" or msg == "dup" then
+    ZonePet_showDuplicates()
   else
     msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp mini|c0000FFFF to show the ZonePet icon in the MiniMap."
     ChatFrame1:AddMessage(msg)
@@ -582,6 +617,8 @@ function ZonepetCommandHandler(msg)
     msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp dismiss|c0000FFFF to dismiss your current pet."
     ChatFrame1:AddMessage(msg)
     msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp all|c0000FFFF or |cFFFFFFFF/zp fav|c0000FFFF to switch between all pets and favorite pets."
+    ChatFrame1:AddMessage(msg)
+    msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp dupe|c0000FFFF to list your duplicate pets."
     ChatFrame1:AddMessage(msg)
   end
 end
