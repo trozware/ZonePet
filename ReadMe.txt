@@ -5,6 +5,7 @@ Keeps a pet active at all times, using a pet native to the current zone if possi
 Will not change more than once every 5 minutes, unless you lose your pet.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+v 1.4.8: Updated for Patch 8.2.
 v 1.4.7: 
   Type '/zp dupe' in chat to list your duplicate pets.
   If you are doing Children's Week activiies with your orphan, or any similar questing with a special companion, temporarily disable ZonePet by right-clicking in the minimap button. Summoning a pet either with ZonePet or manually, will automatically dimiss companions like the orphan.
