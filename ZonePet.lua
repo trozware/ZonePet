@@ -10,6 +10,7 @@ local ZonePet = {}
 local ZonePet_LastPetChange = 0
 local ZonePet_LastEventTrigger = 0
 local ZonePet_LastError = 0
+local ZonePet_LastPetID = nil
 
 local ZonePet_Stealthed = IsStealthed()
 local ZonePet_PreviousMessage = ""
@@ -96,7 +97,11 @@ function ZonePet_processMountEvent()
   currentPetID = C_PetJournal.GetSummonedPetGUID()
   if currentPetID == nil then
     ZonePet_LastError = 0
-    ZonePet_processEvent()
+    if ZonePet_LastPetID == nil then
+      ZonePet_processEvent()
+    else
+      ZonePet_shouldSummonSamePet()
+    end
   else
     -- petFromZone = ZonePet_petIsFromThisZone(currentPetID)
     -- if petFromZone == false then
@@ -108,6 +113,26 @@ function ZonePet_processMountEvent()
     --   ZonePet_processEvent()
     -- end
   end
+end
+
+function ZonePet_shouldSummonSamePet()
+  -- have an existing pet ID
+
+  -- was it summoned less than 5 minutes ago
+  now = GetTime()           -- time in seconds
+  if now - ZonePet_LastPetChange >= 300 then
+    ZonePet_processEvent()
+    return
+  end
+
+  -- is it from this zone
+  isFromZone = ZonePet_petIsFromThisZone(ZonePet_LastPetID)
+  if isFromZone == false then
+    ZonePet_processEvent()
+    return
+  end 
+
+  C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
 end
 
 function ZonePet_petIsFromThisZone(currentPetID)
@@ -271,6 +296,8 @@ function ZonePet_checkSummonedPet(zoneName)
   C_Timer.After(2,
     function()
       summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
+      ZonePet_LastPetID = summonedPetGUID
+
       if summonedPetGUID then
         speciesID, customName, level, xp, maxXp, displayID, isFavorite,
         name, icon, petType, creatureID, sourceText, description,
@@ -426,6 +453,7 @@ function ZonePet:Initialize()
         zonePetMiniMap.Button:Hide()
         zonePetMiniMap.Hidden=true
         ZonepetCommandHandler('help')
+        ZonePet_TooltipVisible = false
       else
         ZonePet_HaveDismissed = true
         ZonePet_dismissCurrentPet()
@@ -443,17 +471,20 @@ function ZonePet:Initialize()
 	b:SetScript("OnDragStart", function(self,event)
     if(zonePetMiniMap.dragable) then
       self.dragme = true
+      ZonePet_TooltipVisible = false
       self:LockHighlight()
     end
 	end)
 
-	b:SetScript("OnDragStop", function(self,event)
+	b:SetScript("OnDragStop", function(self, event)
     self.dragme = false
+    ZonePet_TooltipVisible = false
     self:UnlockHighlight()
   end)
 
-	b:SetScript("OnUpdate", function(self,event)
+	b:SetScript("OnUpdate", function(self, event)
     if self.dragme == true then
+      ZonePet_TooltipVisible = false
       ZonePet:MinimapBeingDragged()
     end
   end)
@@ -478,15 +509,22 @@ function ZonePet:Initialize()
 end
 
 function ZonePet_showTooltip()
+  petData = ZonePet_dataForCurrentPet()
   GameTooltip:SetOwner(GameTooltip:GetOwner(), "ANCHOR_NONE")
   GameTooltip:ClearLines()
   GameTooltip:SetText("ZonePet", 1, 1, 1)
   GameTooltip:AddLine(" ")
 
-  -- standard gold color: FFD100 = 1, 0.82, 0
-
-  petData = ZonePet_dataForCurrentPet()
   if petData then
+    GameTooltip:AddTexture(petData.icon, {width = 32, height = 32})
+  else
+    GameTooltip:AddTexture("Interface\\ICONS\\Tracking_WildPet", {width = 32, height = 32})
+  end
+
+  GameTooltip:AddLine(" ")
+
+  -- standard gold color: FFD100 = 1, 0.82, 0
+    if petData then
     GameTooltip:AddLine(petData.name, 0, 1, 0, true)
     GameTooltip:AddLine(petData.desc, 0, 1, 1, true)
   elseif ZonePet_HaveDismissed then
