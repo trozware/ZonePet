@@ -15,9 +15,9 @@ If you have no pets or only a few pets from the zone, you may see a random pet i
 
 ### Usage
 
-Install the add-on and when you log in, you will summon a pet automatically. After 5 minutes with the same pet, or when you lose you pet, a different pet will be summoned.
+Install the add-on and when you log in, you will summon a pet automatically. After 5 minutes with the same pet, or when you lose your pet, a different pet will be summoned.
 
-Read the pet's name and description in the Chat window - the descriptions can be very funny - yet another way we are missing out on some good content.
+Read the pet's name and description in the Chat  or by mousing over the MiniMap button. These descriptions can be very funny - yet another way we are missing out on some good content. And if your pet has an interactive command, see what to type.
 
 Bonus for sneaky types: no pet will be summoned while you are in Stealth mode and if you enter Stealth mode and are flagged for PvP, your pet will be dismissed so as not to attract unwanted attention.
 
@@ -33,10 +33,11 @@ Mouse over the MiniMap button to see details about your currently summoned pet (
 ### Slash Commands
 
 - /zp new - change to a different pet.
+- /zp about - show info about your current pet.
 - /zp dismiss - dismiss your pet (you will get a new one when you change zone).
 - /zp fav - summon favorite pets only (if you have enough).
 - /zp all - choose from all your pets.
-- /zp mini - show the MiniMap button if you have hidden it.
+- /zp mini - show or hide the MiniMap button if you have hidden it.
 - /zp dupe - list any duplicate pets.
 
 If /zp conflicts with any other commands, use /zonepet instead.
@@ -49,6 +50,10 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 1.5.0:
+  - If your pet has a command that can be used to interact with it, this will be shown in the tooltip.
+  - Type '/zp about' to see information about your current pet in the chat.
+  - Hopefully fixed bug with extra icon appearing in tooltip and staying there.
 - v 1.4.8: Updated for Patch 8.2.
 - v 1.4.7:
   - Type '/zp dupe' in chat to list your duplicate pets.

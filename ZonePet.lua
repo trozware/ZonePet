@@ -321,6 +321,11 @@ function ZonePet_checkSummonedPet(zoneName)
         if description and description ~= "" then
           ZonePet_displayMessage("|c0000FFFF" .. description)
         end
+        local interaction = ZonePet_interaction(name)
+        if interaction and interaction ~= "" then
+          ZonePet_displayMessage("|c0000FFFFTargte |c0000FF00" .. name .. " |c0000FFFFand typ |cFFFFFFFF" .. interaction .. " to interact.")
+        end
+
         ZonePet_LastError = 0
       else
         ZonePet_LastError = time()
@@ -342,6 +347,32 @@ function ZonePet_dataForCurrentPet()
     return { name = name, desc = description, icon = icon }
   end
   return nil
+end
+
+function ZonePet_displayInfoForCurrentPet()
+  local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
+  if summonedPetGUID then
+    ZonePet_chatDescription(summonedPetGUID)
+  else
+    msg = "|c0000FF00ZonePet: " .. "|c0000FFFFYou have no pet active right now."
+    ZonePet_displayMessage(msg)
+  end
+end
+
+function ZonePet_chatDescription(summonedPetGUID)
+  speciesID, customName, level, xp, maxXp, displayID, isFavorite,
+  name, icon, petType, creatureID, sourceText, description,
+  isWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
+
+  ZonePet_displayMessage("|c0000FF00ZonePet: " .. name .. ".")
+  if description and description ~= "" then
+    ZonePet_displayMessage("|c0000FFFF" .. description)
+  end
+  
+  local interaction = ZonePet_interaction(name)
+  if interaction and interaction ~= "" then
+    ZonePet_displayMessage("|c0000FFFFYou can interact with |c0000FF00" .. name .. " |c0000FFFFby targetting it and typing |cFFFFFFFF" .. interaction .. ".")
+  end
 end
 
 function ZonePet_dismissCurrentPet()
@@ -513,21 +544,21 @@ function ZonePet_showTooltip()
   GameTooltip:SetOwner(GameTooltip:GetOwner(), "ANCHOR_NONE")
   GameTooltip:ClearLines()
   GameTooltip:SetText("ZonePet", 1, 1, 1)
-  GameTooltip:AddLine(" ")
 
   if petData then
+    GameTooltip:AddLine(" ")
+    GameTooltip:AddLine(" ")
     GameTooltip:AddTexture(petData.icon, {width = 32, height = 32})
-  else
-    GameTooltip:AddTexture("Interface\\ICONS\\Tracking_WildPet", {width = 32, height = 32})
-  end
-
-  GameTooltip:AddLine(" ")
-
-  -- standard gold color: FFD100 = 1, 0.82, 0
-    if petData then
+    GameTooltip:AddLine(" ")
     GameTooltip:AddLine(petData.name, 0, 1, 0, true)
     GameTooltip:AddLine(petData.desc, 0, 1, 1, true)
+
+    local interaction = ZonePet_interaction(petData.name)
+    if interaction and interaction ~= "" then
+      GameTooltip:AddLine("Target " .. petData.name .. " and type " .. interaction .. " to interact.", 1, 1, 1, true)
+    end
   elseif ZonePet_HaveDismissed then
+    GameTooltip:AddLine(" ")
     msg = "You have dismissed your pet. No new pet will be summoned until you left-click here or use '/zp new'."
     GameTooltip:AddLine(msg , 0, 1, 1, true)
   end
@@ -630,9 +661,14 @@ function ZonePet:MinimapBeingDragged()
 end
 
 function ZonepetCommandHandler(msg) 
-  if msg == "mini" or msg == "on" then 
-    zonePetMiniMap.Button:Show()
-    zonePetMiniMap.Hidden=false
+  if msg == "mini" then
+    if zonePetMiniMap.Hidden == true then
+      zonePetMiniMap.Button:Show()
+      zonePetMiniMap.Hidden=false
+    else
+      zonePetMiniMap.Button:Hide()
+      zonePetMiniMap.Hidden=true
+    end
   elseif msg == "dismiss" then
     ZonePet_HaveDismissed = true
     ZonePet_dismissCurrentPet()
@@ -647,10 +683,12 @@ function ZonepetCommandHandler(msg)
     ZonePet_summonForZone()
   elseif msg == "dupe" or msg == "dup" then
     ZonePet_showDuplicates()
+  elseif msg == "about" then
+  ZonePet_displayInfoForCurrentPet()
   else
-    msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp mini|c0000FFFF to show the ZonePet icon in the MiniMap."
-    ChatFrame1:AddMessage(msg)
     msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp new|c0000FFFF to summon a different pet."
+    ChatFrame1:AddMessage(msg)
+    msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp about|c0000FFFF to show some info about your pet."
     ChatFrame1:AddMessage(msg)
     msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp dismiss|c0000FFFF to dismiss your current pet."
     ChatFrame1:AddMessage(msg)
@@ -658,5 +696,67 @@ function ZonepetCommandHandler(msg)
     ChatFrame1:AddMessage(msg)
     msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp dupe|c0000FFFF to list your duplicate pets."
     ChatFrame1:AddMessage(msg)
+    msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp mini|c0000FFFF to show or hide the ZonePet icon in the MiniMap."
+    ChatFrame1:AddMessage(msg)
   end
+end
+
+function ZonePet_interaction(petName)
+  local cats = { "Black Tabby Cat", "Bombay Cat", "Calico Cat", "Cat", "Cheetah Cub", "Cinder Kitten", "Cornish Rex Cat", "Cursed Birman", "Darkmoon Cub", "Felclaw Marsuul", "Feline Familiar", "Fluxfire Feline", "Mr. Bigglesworth", "Nightsaber Cub", "Orange Tabby Cat", "Orphaned Marsuul", "Panther Cub", "Pygmy Marsuul", "Risen Saber Kitten", "Sanctum Cub", "Sand Kitten", "Sapphire Cub", "Savage Cub", "Shadow", "Siamese Cat", "Silver Tabby Cat", "Smoochums", "Snow Cub", "Spectral Tiger Cub", "White Kitten", "Widget the Departed", "Winterspring Cub" }
+  if inTable(cats, petName) == true then
+    return "/sit"
+  end
+
+  local parrots = { "Cap'n Crackers", "Crackers", "Feathers" }
+  if inTable(parrots, petName) == true then
+    return "/whistle"
+  end
+
+  local moonkin = { "Mini Tyrael", "Moon Moon", "Moonkin Hatchling" }
+  if inTable(moonkin, petName) == true then
+    return "/dance"
+  end
+
+  local penguins = { "Mr. Chilly", "Pengu" }
+  if inTable(penguins, petName) == true then
+    return "/sexy"
+  end
+
+  local oddities = { "Discarded Experiment", "Faceless Mindlasher", "Faceless Minion" }
+  if inTable(penguins, petName) == true then
+    return "/dance or /roar"
+  end
+
+  if petName == "Alterac Brandy" then
+    return "/helpme"
+  elseif petName == "Graves" then
+    return "/cheer, /talk, /roar or /dance"
+  elseif petName == "Mischief" then
+    return "/sit or /dance"
+  elseif petName == "Mojo" then
+    return "/kiss"
+  elseif petName == "Pandaren Monk" then
+    return "/bow or /drink"
+  elseif petName == "Tiny Snowman" then
+    return "/wave, /dance or /kiss"
+  elseif petName == "Mojo" then
+    return "/kiss"
+  elseif petName == "Tottle" then
+    return "/roar"
+  elseif petName == "Trunks" then
+    return "/wave"
+  elseif petName == "Twilight" then
+    return "/dance or /sit"
+  elseif petName == "Zeradar" then
+    return "/cheer"
+  end
+
+  return ""
+end
+
+function inTable(tbl, item)
+  for key, value in pairs(tbl) do
+      if value == item then return true end
+  end
+  return false
 end
