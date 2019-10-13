@@ -547,9 +547,9 @@ function ZonePet_showTooltip()
 
   if petData then
     GameTooltip:AddLine(" ")
-    GameTooltip:AddLine(" ")
-    GameTooltip:AddTexture(petData.icon, {width = 32, height = 32})
-    GameTooltip:AddLine(" ")
+    -- GameTooltip:AddLine(" ")
+    -- GameTooltip:AddTexture(petData.icon, {width = 32, height = 32})
+    -- GameTooltip:AddLine(" ")
     GameTooltip:AddLine(petData.name, 0, 1, 0, true)
     GameTooltip:AddLine(petData.desc, 0, 1, 1, true)
 

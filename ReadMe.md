@@ -17,7 +17,7 @@ If you have no pets or only a few pets from the zone, you may see a random pet i
 
 Install the add-on and when you log in, you will summon a pet automatically. After 5 minutes with the same pet, or when you lose your pet, a different pet will be summoned.
 
-Read the pet's name and description in the Chat  or by mousing over the MiniMap button. These descriptions can be very funny - yet another way we are missing out on some good content. And if your pet has an interactive command, see what to type.
+Read the pet's name and description in the Chat or by mousing over the MiniMap button. These descriptions can be very funny - yet another way we are missing out on some good content. And if your pet has an interactive command, see what to type.
 
 Bonus for sneaky types: no pet will be summoned while you are in Stealth mode and if you enter Stealth mode and are flagged for PvP, your pet will be dismissed so as not to attract unwanted attention.
 
@@ -50,10 +50,10 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 1.5.1: Removed icon from tooltip to try to avoid display problem.
 - v 1.5.0:
   - If your pet has a command that can be used to interact with it, this will be shown in the tooltip.
   - Type '/zp about' to see information about your current pet in the chat.
-  - Hopefully fixed bug with extra icon appearing in tooltip and staying there.
 - v 1.4.8: Updated for Patch 8.2.
 - v 1.4.7:
   - Type '/zp dupe' in chat to list your duplicate pets.
