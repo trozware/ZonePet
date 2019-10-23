@@ -323,7 +323,7 @@ function ZonePet_checkSummonedPet(zoneName)
         end
         local interaction = ZonePet_interaction(name)
         if interaction and interaction ~= "" then
-          ZonePet_displayMessage("|c0000FFFFTargte |c0000FF00" .. name .. " |c0000FFFFand typ |cFFFFFFFF" .. interaction .. " to interact.")
+          ZonePet_displayMessage("|c0000FFFFTarget |c0000FF00" .. name .. " |c0000FFFFand type |cFFFFFFFF" .. interaction .. " to interact.")
         end
 
         ZonePet_LastError = 0

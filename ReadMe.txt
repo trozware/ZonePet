@@ -5,6 +5,7 @@ Keeps a pet active at all times, using a pet native to the current zone if possi
 Will not change more than once every 5 minutes, unless you lose your pet.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+v 1.5.2: Fixed error in interaction info.
 v 1.5.1: Removed icon from tooltip to try to avoid display problem.
 v 1.5.0:
   If your pet has a command that can be used to interact with it, this will be shown in the tooltip.
