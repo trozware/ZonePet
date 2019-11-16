@@ -1,3 +1,7 @@
+-- use this command in game to get the version number
+-- /run print((select(4, GetBuildInfo())));
+
+
 local ZonePet_EventFrame = CreateFrame("Frame")
 -- ZonePet_EventFrame:RegisterEvent("PLAYER_LOGIN")
 ZonePet_EventFrame:RegisterEvent("ZONE_CHANGED")
@@ -90,6 +94,10 @@ function ZonePet_processEvent()
 end 
 
 function ZonePet_processMountEvent()
+  if InCombatLockdown() == true or UnitIsDeadOrGhost("player") then
+    return
+  end
+  
   if ZonePet_HaveDismissed == true then
     return
   end
@@ -102,16 +110,6 @@ function ZonePet_processMountEvent()
     else
       ZonePet_shouldSummonSamePet()
     end
-  else
-    -- petFromZone = ZonePet_petIsFromThisZone(currentPetID)
-    -- if petFromZone == false then
-    --   -- if landed from flight in a different zone and 
-    --   -- this pet is not from the new zone, force a change
-    --   ZonePet_LastPetChange = 0
-    --   ZonePet_LastEventTrigger = 0
-    --   ZonePet_LastError = 0
-    --   ZonePet_processEvent()
-    -- end
   end
 end
 
@@ -159,6 +157,10 @@ function ZonePet_summonForZone()
 end
 
 function ZonePet_summonPet(zoneName)
+  if InCombatLockdown() == true or UnitIsDeadOrGhost("player") then
+    return
+  end
+
   if ZonePet_Stealthed == true then
     if UnitIsPVP("player") == true then
       ZonePet_dismissCurrentPet()
@@ -236,6 +238,10 @@ function ZonePet_summonRandomPet(zoneName, startingPets)
 end
 
 function ZonePet_pickRandomPet(favsOnly, startingPets)
+  if InCombatLockdown() == true or UnitIsDeadOrGhost("player") then
+    return
+  end
+
   numPets, numOwned = C_PetJournal.GetNumPets()
   petList = startingPets
 
@@ -295,6 +301,10 @@ end
 function ZonePet_checkSummonedPet(zoneName)
   C_Timer.After(2,
     function()
+      if InCombatLockdown() == true or UnitIsDeadOrGhost("player") then
+        return
+      end
+
       summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
       ZonePet_LastPetID = summonedPetGUID
 
@@ -339,6 +349,10 @@ function ZonePet_checkSummonedPet(zoneName)
 end
 
 function ZonePet_dataForCurrentPet()
+  if InCombatLockdown() == true or UnitIsDeadOrGhost("player") then
+    return
+  end
+
   summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
   if summonedPetGUID then
     speciesID, customName, level, xp, maxXp, displayID, isFavorite,
@@ -350,6 +364,10 @@ function ZonePet_dataForCurrentPet()
 end
 
 function ZonePet_displayInfoForCurrentPet()
+  if InCombatLockdown() == true or UnitIsDeadOrGhost("player") then
+    return
+  end
+
   local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
   if summonedPetGUID then
     ZonePet_chatDescription(summonedPetGUID)
@@ -376,6 +394,10 @@ function ZonePet_chatDescription(summonedPetGUID)
 end
 
 function ZonePet_dismissCurrentPet()
+  if InCombatLockdown() == true or UnitIsDeadOrGhost("player") then
+    return
+  end
+
   summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
   if summonedPetGUID then
     C_PetJournal.SummonPetByGUID(summonedPetGUID)
@@ -384,6 +406,10 @@ function ZonePet_dismissCurrentPet()
 end
 
 function ZonePet_showDuplicates()
+  if InCombatLockdown() == true or UnitIsDeadOrGhost("player") then
+    return
+  end
+
   C_PetJournal.SetAllPetTypesChecked(true)
   C_PetJournal.SetAllPetSourcesChecked(true)
   C_PetJournal.ClearSearchFilter()
@@ -520,66 +546,67 @@ function ZonePet:Initialize()
     end
   end)
 
-  b:SetScript("OnEnter", function(self,event)
-    GameTooltip:SetOwner(self, "ANCHOR_NONE")
-    GameTooltip:SetPoint("TOPRIGHT", self, "BOTTOM")
-    GameTooltip:SetScript("OnHide", function(self, event)
+  b:SetScript("OnEnter", function(self, event)
+    ZonePetTooltip:SetOwner(self, "ANCHOR_NONE")
+    ZonePetTooltip:SetPoint("TOPRIGHT", self, "BOTTOM")
+    ZonePetTooltip:SetScript("OnHide", function(self, event)
       -- this should make sure it never appears in the wrong place
       ZonePet_TooltipVisible = false
     end)
-    ZonePet_showTooltip()
+    ZonePet_showTooltip(self)
   end)
 
   b:SetScript("OnLeave", function(self,event)
-    GameTooltip:Hide()
+    ZonePetTooltip:Hide()
   end)
 
   b:RegisterForDrag("LeftButton")
   b:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	b.dragme = false
+  b.dragme = false
+  
+  CreateFrame("GameTooltip", "ZonePetTooltip", UIParent, "GameTooltipTemplate")
 end
 
-function ZonePet_showTooltip()
+function ZonePet_showTooltip(self)
   petData = ZonePet_dataForCurrentPet()
-  GameTooltip:SetOwner(GameTooltip:GetOwner(), "ANCHOR_NONE")
-  GameTooltip:ClearLines()
-  GameTooltip:SetText("ZonePet", 1, 1, 1)
+  ZonePetTooltip:ClearLines()
+  ZonePetTooltip:SetText("ZonePet", 1, 1, 1)
 
   if petData then
-    GameTooltip:AddLine(" ")
-    -- GameTooltip:AddLine(" ")
-    -- GameTooltip:AddTexture(petData.icon, {width = 32, height = 32})
-    -- GameTooltip:AddLine(" ")
-    GameTooltip:AddLine(petData.name, 0, 1, 0, true)
-    GameTooltip:AddLine(petData.desc, 0, 1, 1, true)
+    ZonePetTooltip:AddLine(" ")
+    ZonePetTooltip:AddLine(" ")
+    ZonePetTooltip:AddTexture(petData.icon, {width = 32, height = 32})
+    ZonePetTooltip:AddLine(" ")
+    ZonePetTooltip:AddLine(petData.name, 0, 1, 0, true)
+    ZonePetTooltip:AddLine(petData.desc, 0, 1, 1, true)
 
     local interaction = ZonePet_interaction(petData.name)
     if interaction and interaction ~= "" then
-      GameTooltip:AddLine("Target " .. petData.name .. " and type " .. interaction .. " to interact.", 1, 1, 1, true)
+      ZonePetTooltip:AddLine("Target " .. petData.name .. " and type " .. interaction .. " to interact.", 1, 1, 1, true)
     end
   elseif ZonePet_HaveDismissed then
-    GameTooltip:AddLine(" ")
+    ZonePetTooltip:AddLine(" ")
     msg = "You have dismissed your pet. No new pet will be summoned until you left-click here or use '/zp new'."
-    GameTooltip:AddLine(msg , 0, 1, 1, true)
+    ZonePetTooltip:AddLine(msg , 0, 1, 1, true)
   end
   
-  GameTooltip:AddLine("\nLeft-click to summon a new pet, from this zone if possible.")
-  GameTooltip:AddLine("Right-click to dismiss your current pet.")
-  GameTooltip:AddLine(" ")
+  ZonePetTooltip:AddLine("\nLeft-click to summon a new pet, from this zone if possible.")
+  ZonePetTooltip:AddLine("Right-click to dismiss your current pet.")
+  ZonePetTooltip:AddLine(" ")
 
   if zonePetMiniMap.favsOnly then
-    GameTooltip:AddLine("Selecting from favorite pets only.")
-    GameTooltip:AddLine("Shift + Left-click to select from all pets.")
+    ZonePetTooltip:AddLine("Selecting from favorite pets only.")
+    ZonePetTooltip:AddLine("Shift + Left-click to select from all pets.")
   else
-    GameTooltip:AddLine("Selecting from all pets.")
-    GameTooltip:AddLine("Shift + Left-click to select from favorite pets only.")
+    ZonePetTooltip:AddLine("Selecting from all pets.")
+    ZonePetTooltip:AddLine("Shift + Left-click to select from favorite pets only.")
   end
 
-  GameTooltip:AddLine(" ")
-  GameTooltip:AddLine("Shift + Right-click to hide this button.")
-  GameTooltip:AddLine("Type '/zp mini' in Chat to show this button again.")
+  ZonePetTooltip:AddLine(" ")
+  ZonePetTooltip:AddLine("Shift + Right-click to hide this button.")
+  ZonePetTooltip:AddLine("Type '/zp mini' in Chat to show this button again.")
 
-  GameTooltip:Show()
+  ZonePetTooltip:Show()
   ZonePet_TooltipVisible = true
 end
     

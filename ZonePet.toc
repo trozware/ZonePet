@@ -1,7 +1,7 @@
 ## Title: ZonePet
 ## Interface: 80205
 ## Author: Sarah Reichelt
-## Version: 1.5.2
+## Version: 1.5.3
 
 ## SavedVariables: zonePetMiniMap
 ## X-Category: Companions

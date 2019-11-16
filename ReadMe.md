@@ -50,6 +50,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 1.5.3: Better checking for in combat and not able to get pet info, fixed tooltip.
 - v 1.5.2: Fixed error in interaction info.
 - v 1.5.1: Removed icon from tooltip to try to avoid display problem.
 - v 1.5.0:
