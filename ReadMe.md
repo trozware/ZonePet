@@ -13,31 +13,42 @@ You may have collected hundreds of pets, but you never remember to summon them s
 **ZonePet** checks all your pets and tries to summon a pet that is native to your current zone.
 If you have no pets or only a few pets from the zone, you may see a random pet instead.
 
+If **ZonePet** summons a pet you want to keep around for a while, you can lock it in so that it stays your pet until you choose another. And you can go back to the previous pet if you missed it.
+
+If you want to summon a particular pet, **ZonePet** will search your pets for a pet matching the name you enter.
+
 ### Usage
 
-Install the add-on and when you log in, you will summon a pet automatically. After 5 minutes with the same pet, or when you lose your pet, a different pet will be summoned.
+Install the add-on and when you log in, you will summon a pet automatically. After 5 minutes with the same pet, or when you lose your pet or change zone, a different pet will be summoned.
 
 Read the pet's name and description in the Chat or by mousing over the MiniMap button. These descriptions can be very funny - yet another way we are missing out on some good content. And if your pet has an interactive command, see what to type.
 
 Bonus for sneaky types: no pet will be summoned while you are in Stealth mode and if you enter Stealth mode and are flagged for PvP, your pet will be dismissed so as not to attract unwanted attention.
+
+Most of **ZonePet**'s features are available from the MiniMap button - mouse over it to see them.  
+Some are only accessible though the `/zp` slash commnnds. Type '/zp' in the Chat window to see a lit of these commands.
 
 ### MiniMap button
 
 Mouse over the MiniMap button to see details about your currently summoned pet (if any) and to operate the ZonePet add-on.
 
 - Left-click - change to a different pet.
+- Shift + Left-click - switch back to the previous pet and lock it in.
+- Alt + Left-click - lock in the current pet until you left-click or use '/zp new' to get another.
 - Right-click - dismiss your pet (you will not get a new one until you left-click or use '/zp new').
-- Shift + Left-click - switch between summoning favorite pets only or using all your pets.
-- Shift + Right-click - hide the MiniMap button (use the /zp commands to operate **ZonePet** or to bring back the button).
+- Alt + Right-click - hide the MiniMap button (use the /zp commands to operate **ZonePet** or to bring back the button).
 
 ### Slash Commands
 
 - /zp new - change to a different pet.
 - /zp about - show info about your current pet.
-- /zp dismiss - dismiss your pet (you will get a new one when you change zone).
+- /zp back - summon & lock in the previous pet.
+- /zp lock - lock in the current pet until you left-click or use '/zp new' to get another.
+- /zp search - search for and summon a pet by name (searching is case-insensitive and will find partial matches).
+- /zp dismiss - dismiss your pet.
 - /zp fav - summon favorite pets only (if you have enough).
 - /zp all - choose from all your pets.
-- /zp mini - show or hide the MiniMap button if you have hidden it.
+- /zp mini - show or hide the MiniMap button.
 - /zp dupe - list any duplicate pets.
 
 If /zp conflicts with any other commands, use /zonepet instead.
@@ -50,6 +61,12 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 2.0.0:
+  - New features: summon previous pet, lock in the current pet or search by name.
+  - To go back your previous pet, type '/zp back' or Shift + Left-click the MiniMap button.
+  - To lock in your current pet, type '/zp lock' or Alt + Left-click the MiniMap button.
+  - To search for a pet by name, type '/zp search name' e.g. '/zp search egbert'.
+    - Searching is case-insensitive and will find partial matches.
 - v 1.5.3: Better checking for in combat and not able to get pet info, fixed tooltip.
 - v 1.5.2: Fixed error in interaction info.
 - v 1.5.1: Removed icon from tooltip to try to avoid display problem.

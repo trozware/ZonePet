@@ -6,7 +6,8 @@
 ## SavedVariables: zonePetMiniMap
 ## X-Category: Companions
 
-ZonePetInteractions.lua
 ZonePet.lua
-ZonePetSummon.lua
 ZonePetEvents.lua
+ZonePetSummon.lua
+ZonePetInteractions.lua
+ZonePetSearch.lua

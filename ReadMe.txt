@@ -5,6 +5,12 @@ Keeps a pet active at all times, using a pet native to the current zone if possi
 Will not change more than once every 5 minutes, unless you lose your pet.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+v 2.0.0:
+  New features: summon previous pet, lock in the current pet or search by name.
+  To go back your previous pet, type '/zp back' or Shift + Left-click the MiniMap button.
+  To lock in your current pet, type '/zp lock' or Alt + Left-click the MiniMap button.
+  To search for a pet by name, type '/zp search name' e.g. '/zp search egbert'.
+    Searching is case-insensitive and will find partial matches.
 v 1.5.3: Better checking for in combat and not able to get pet info, fixed tooltip.
 v 1.5.2: Fixed error in interaction info.
 v 1.5.1: Removed icon from tooltip to try to avoid display problem.
