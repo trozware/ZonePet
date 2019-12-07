@@ -171,12 +171,13 @@ function ZonePet_showTooltip(self)
     ZonePetTooltip:AddLine("Shift + Left-click to go back to the previous pet.")
   end
 
-
-  if ZonePet_LockPet == true then
-    ZonePetTooltip:AddLine("You have locked in your current pet.")
-    ZonePetTooltip:AddLine("Left-click to summon a different pet.")
-  else
-    ZonePetTooltip:AddLine("Alt + Left-click to lock in this pet.")
+  if petData then
+    if ZonePet_LockPet == true then
+      ZonePetTooltip:AddLine("You have locked in your current pet.")
+      ZonePetTooltip:AddLine("Left-click to summon a different pet.")
+    else
+      ZonePetTooltip:AddLine("Alt + Left-click to lock in this pet.")
+    end
   end
 
   ZonePetTooltip:AddLine(" ")

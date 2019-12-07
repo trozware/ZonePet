@@ -1,7 +1,8 @@
 function ZonePet_shouldSummonSamePet()
-  -- have an existing pet ID
+  -- existing pet ID already confirmed
   if ZonePet_LockPet == true then
     C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
+    ZonePet_checkSummonedPet(GetZoneText())
     return
   end
 

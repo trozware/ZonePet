@@ -26,7 +26,7 @@ Read the pet's name and description in the Chat or by mousing over the MiniMap b
 Bonus for sneaky types: no pet will be summoned while you are in Stealth mode and if you enter Stealth mode and are flagged for PvP, your pet will be dismissed so as not to attract unwanted attention.
 
 Most of **ZonePet**'s features are available from the MiniMap button - mouse over it to see them.  
-Some are only accessible though the `/zp` slash commnnds. Type '/zp' in the Chat window to see a lit of these commands.
+Some are only accessible though the `/zp` slash commands. Type '/zp' in the Chat window to see a list of these commands.
 
 ### MiniMap button
 
@@ -61,6 +61,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 2.0.1: A locked pet will now always be re-summoned when you dismount.
 - v 2.0.0:
   - New features: summon previous pet, lock in the current pet or search by name.
   - To go back your previous pet, type '/zp back' or Shift + Left-click the MiniMap button.
@@ -76,7 +77,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 - v 1.4.8: Updated for Patch 8.2.
 - v 1.4.7:
   - Type '/zp dupe' in chat to list your duplicate pets.
-  - If you are doing Children's Week activiies with your orphan, or any similar questing with a special companion, temporarily disable ZonePet by right-clicking in the minimap button. Summoning a pet either with ZonePet or manually, will automatically dimiss companions like the orphan.
+  - If you are doing Children's Week activities with your orphan, or any similar questing with a special companion, temporarily disable ZonePet by right-clicking in the minimap button. Summoning a pet either with ZonePet or manually, will automatically dismiss companions like the orphan.
 - v 1.4.6: Stops icon appearing in over-sized tooltip.
 - v 1.4.5:
   - Better text formatting in tooltip when using ElvUI.
