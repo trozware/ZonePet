@@ -5,6 +5,8 @@ ZonePet_EventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 ZonePet_EventFrame:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
 ZonePet_EventFrame:RegisterEvent("UPDATE_STEALTH")
 ZonePet_EventFrame:RegisterEvent("VARIABLES_LOADED")
+ZonePet_EventFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+ZonePet_EventFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 
 ZonePet_EventFrame:SetScript("OnEvent",
   function(self, event, ...)
@@ -32,6 +34,10 @@ ZonePet_EventFrame:SetScript("OnEvent",
           ZonePet_processMountEvent()
           end
       )
+    elseif event == "UNIT_SPELLCAST_CHANNEL_START" then
+      ZonePet_IsChannelling = true
+    elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" then
+      ZonePet_IsChannelling = false
     else
       ZonePet_processEvent()
     end  
@@ -39,27 +45,16 @@ ZonePet_EventFrame:SetScript("OnEvent",
 )
 
 function ZonePet_processEvent()
-  if ZonePet_HaveDismissed == true or ZonePet_LockPet == true then
+  shouldProcess = shouldProcessEvent()
+  if shouldProcess == 'no' then
     return
-  end
-
-  spellName, _, _, _, _, _, _, _, _, _ = UnitCastingInfo("player")
-  channelName, _, _, _, _, _, _, _ = UnitChannelInfo("player")
-  inCombat = InCombatLockdown()
-  isDead = UnitIsDeadOrGhost("player") 
-  if inCombat == true or isDead == true or spellName ~= nil or channelName ~= nil then
-    C_Timer.After(5,
+  elseif shouldProcess == 'delay' then
+      C_Timer.After(5,
       function()
         ZonePet_processEvent()
       end
     )
     return
-  end
-
-  if IsFlying() == true or 
-    UnitInVehicle("player") == true or
-    UnitOnTaxi("player") == true then
-      return
   end
 
   now = GetTime()           -- time in seconds
@@ -80,11 +75,15 @@ function ZonePet_processEvent()
 end 
 
 function ZonePet_processMountEvent()
-  if InCombatLockdown() == true or UnitIsDeadOrGhost("player") then
+  shouldProcess = shouldProcessEvent()
+  if shouldProcess == 'no' then
     return
-  end
-  
-  if ZonePet_HaveDismissed == true then
+  elseif shouldProcess == 'delay' then
+      C_Timer.After(5,
+      function()
+        ZonePet_processMountEvent()
+      end
+    )
     return
   end
 
@@ -105,4 +104,31 @@ end
 function ZonePet_ShowWelcome()
   v = GetAddOnMetadata("ZonePet", "Version") 
   ZonePet_displayMessage("|c0000FF00Welcome to ZonePet v" .. v .. ": " .. "|c0000FFFFType |c00FFD100/zp |c0000FFFFfor help.")
+end
+
+function shouldProcessEvent()
+  if ZonePet_HaveDismissed == true or ZonePet_LockPet == true then
+    return "no"
+  end
+
+  if  UnitIsFeignDeath("player") then
+    ZonePet_dismissCurrentPet()
+    return "no"
+  end
+
+  spellName, _, _, _, _, _, _, _, _, _ = UnitCastingInfo("player")
+  channelName, _, _, _, _, _, _, _ = UnitChannelInfo("player")
+  inCombat = InCombatLockdown()
+  isDead = UnitIsDeadOrGhost("player") or UnitIsFeignDeath("player")
+  if inCombat == true or isDead == true or spellName ~= nil or channelName ~= nil or ZonePet_IsChannelling == true then
+    return "delay"
+  end
+
+  if IsFlying() == true or 
+    UnitInVehicle("player") == true or
+    UnitOnTaxi("player") == true then
+      return "no"
+  end
+
+  return "yes"
 end

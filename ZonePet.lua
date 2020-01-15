@@ -13,6 +13,7 @@ ZonePet_Stealthed = IsStealthed()
 ZonePet_PreviousMessage = ""
 ZonePet_HaveDismissed = false
 ZonePet_TooltipVisible = false
+ZonePet_IsChannelling = false
 
 function ZonePet_displayMessage(msg)
   if msg ~= ZonePet_PreviousMessage then

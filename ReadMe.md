@@ -61,6 +61,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 2.0.2: Better checking for good time to summon pet.
 - v 2.0.1: A locked pet will now always be re-summoned when you dismount.
 - v 2.0.0:
   - New features: summon previous pet, lock in the current pet or search by name.
