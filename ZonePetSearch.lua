@@ -13,10 +13,10 @@ function ZonePet_searchForPetPet(command)
   C_PetJournal.SetAllPetSourcesChecked(true)
   C_PetJournal.ClearSearchFilter()
 
-  numPets, numOwned = C_PetJournal.GetNumPets()
+  local numPets, numOwned = C_PetJournal.GetNumPets()
 
   for n = 1, numOwned do
-    petID, speciesID, owned, customName, level, favorite, isRevoked,
+    local petID, speciesID, owned, customName, level, favorite, isRevoked,
     speciesName, icon, petType, companionID, tooltip, description,
     isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
 

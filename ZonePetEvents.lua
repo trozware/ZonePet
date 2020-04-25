@@ -18,6 +18,8 @@ ZonePet_EventFrame:SetScript("OnEvent",
       ZonePet_Stealthed = IsStealthed()
       if ZonePet_Stealthed == true and UnitIsPVP("player") == true then
         ZonePet_dismissCurrentPet()
+      elseif ZonePet_Stealthed == false then      
+        ZonePet_processEvent()
       end
     elseif event == "PLAYER_LOGIN" then
       -- data not ready immediately but force update in 5 seconds
@@ -45,7 +47,7 @@ ZonePet_EventFrame:SetScript("OnEvent",
 )
 
 function ZonePet_processEvent()
-  shouldProcess = shouldProcessEvent()
+  local shouldProcess = ZonePet_shouldProcessEvent()
   if shouldProcess == 'no' then
     return
   elseif shouldProcess == 'delay' then
@@ -57,7 +59,7 @@ function ZonePet_processEvent()
     return
   end
 
-  now = GetTime()           -- time in seconds
+  local now = GetTime()           -- time in seconds
   if now - ZonePet_LastEventTrigger < 5 then
     return
   end
@@ -75,7 +77,7 @@ function ZonePet_processEvent()
 end 
 
 function ZonePet_processMountEvent()
-  shouldProcess = shouldProcessEvent()
+  local shouldProcess = ZonePet_shouldProcessEvent()
   if shouldProcess == 'no' then
     return
   elseif shouldProcess == 'delay' then
@@ -87,7 +89,7 @@ function ZonePet_processMountEvent()
     return
   end
 
-  currentPetID = C_PetJournal.GetSummonedPetGUID()
+  local currentPetID = C_PetJournal.GetSummonedPetGUID()
   if currentPetID == nil then
     ZonePet_LastError = 0
     if ZonePet_LastPetID == nil then
@@ -102,26 +104,33 @@ function ZonePet_processMountEvent()
 end
 
 function ZonePet_ShowWelcome()
-  v = GetAddOnMetadata("ZonePet", "Version") 
+  local v = GetAddOnMetadata("ZonePet", "Version") 
   ZonePet_displayMessage("|c0000FF00Welcome to ZonePet v" .. v .. ": " .. "|c0000FFFFType |c00FFD100/zp |c0000FFFFfor help.")
 end
 
-function shouldProcessEvent()
+function ZonePet_shouldProcessEvent()
   if ZonePet_HaveDismissed == true or ZonePet_LockPet == true then
     return "no"
   end
 
-  if  UnitIsFeignDeath("player") then
+  if UnitIsFeignDeath("player") then
     ZonePet_dismissCurrentPet()
     return "no"
   end
 
-  spellName, _, _, _, _, _, _, _, _, _ = UnitCastingInfo("player")
-  channelName, _, _, _, _, _, _, _ = UnitChannelInfo("player")
-  inCombat = InCombatLockdown()
-  isDead = UnitIsDeadOrGhost("player") or UnitIsFeignDeath("player")
-  if inCombat == true or isDead == true or spellName ~= nil or channelName ~= nil or ZonePet_IsChannelling == true then
-    return "delay"
+  return ZonePet_userIsFree()
+end
+
+function ZonePet_userIsFree()
+  local spellName, _, _, _, _, _, _, _, _, _ = UnitCastingInfo("player")
+  local channelName, _, _, _, _, _, _, _ = UnitChannelInfo("player")
+  local inCombat = InCombatLockdown()
+  local isDead = UnitIsDeadOrGhost("player") or UnitIsFeignDeath("player")
+  local isStealthed = IsStealthed() or ZonePet_Stealthed
+
+  if inCombat == true or isDead == true or spellName ~= nil or channelName ~= nil or 
+    ZonePet_IsChannelling == true or isStealthed == true then
+      return "delay"
   end
 
   if IsFlying() == true or 

@@ -144,7 +144,7 @@ function ZonePet:Initialize()
 end
 
 function ZonePet_showTooltip(self)
-  petData = ZonePet_dataForCurrentPet()
+  local petData = ZonePet_dataForCurrentPet()
   ZonePetTooltip:ClearLines()
   ZonePetTooltip:SetText("ZonePet", 1, 1, 1)
 
@@ -162,7 +162,7 @@ function ZonePet_showTooltip(self)
     end
   elseif ZonePet_HaveDismissed then
     ZonePetTooltip:AddLine(" ")
-    msg = "You have dismissed your pet. No new pet will be summoned until you left-click here or use '/zp new'."
+    local msg = "You have dismissed your pet. No new pet will be summoned until you left-click here or use '/zp new'."
     ZonePetTooltip:AddLine(msg , 0, 1, 1, true)
   end
   
@@ -306,6 +306,7 @@ function ZonepetCommandHandler(msg)
 end
 
 function ZonePet_displayHelp()
+  local msg
   msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp new|c0000FFFF to summon a different pet."
   ChatFrame1:AddMessage(msg)
   msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp about|c0000FFFF to show some info about your pet."

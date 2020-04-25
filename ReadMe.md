@@ -55,12 +55,15 @@ If /zp conflicts with any other commands, use /zonepet instead.
 
 ---
 
+**Zone Pet** is a companion add-on to **Zone Mount** which you can also get from [CurseForge](https://wow.curseforge.com/projects/ZoneMount). While the two add-ons are similar, they are completely independent so you do not have to install both (although I hope you will).
+
 Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id1364247768) for quick access to suggested talent builds and stat priorities.
 
 ---
 
 ### Version History
 
+- v 2.0.3: Really won't summon when you are stealthed (yes, I rolled a rogue...).
 - v 2.0.2: Better checking for good time to summon pet.
 - v 2.0.1: A locked pet will now always be re-summoned when you dismount.
 - v 2.0.0:
