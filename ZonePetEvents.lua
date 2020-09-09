@@ -73,7 +73,12 @@ function ZonePet_processEvent()
     return
   end
 
-  ZonePet_summonForZone()
+  if ZonePet_LockPet == true then
+    C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
+    ZonePet_checkSummonedPet(GetZoneText())
+  else
+    ZonePet_summonForZone()
+  end
 end 
 
 function ZonePet_processMountEvent()
@@ -109,7 +114,8 @@ function ZonePet_ShowWelcome()
 end
 
 function ZonePet_shouldProcessEvent()
-  if ZonePet_HaveDismissed == true or ZonePet_LockPet == true then
+  if ZonePet_HaveDismissed == true then  
+  -- or ZonePet_LockPet == true then
     return "no"
   end
 

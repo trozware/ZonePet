@@ -290,6 +290,8 @@ function ZonePet_displayInfoForCurrentPet()
     return
   end
 
+  ZonePet_ShowWelcome()
+
   local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
   if summonedPetGUID then
     ZonePet_chatDescription(summonedPetGUID)

@@ -298,10 +298,10 @@ function ZonepetCommandHandler(msg)
     ZonePet_lockCurrentPet()
   elseif msg == "about" then
     ZonePet_displayInfoForCurrentPet()
-  elseif strfind(msg, "search") == 1 then
-    ZonePet_searchForPetPet(msg)
-  else
+  elseif msg == '' or msg == 'help' then
     ZonePet_displayHelp()
+  else
+    ZonePet_searchForPet(msg)
   end
 end
 
@@ -315,7 +315,7 @@ function ZonePet_displayHelp()
   ChatFrame1:AddMessage(msg)
   msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp lock|c0000FFFF to lock in your current pet."
   ChatFrame1:AddMessage(msg)
-  msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp search _name_|c0000FFFF to search for a pet by name."
+  msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp _name_|c0000FFFF to search for a pet by name."
   ChatFrame1:AddMessage(msg)
   msg = "|c0000FF00ZonePet: " .. "|c0000FFFFType |cFFFFFFFF/zp dismiss|c0000FFFF to dismiss your current pet."
   ChatFrame1:AddMessage(msg)

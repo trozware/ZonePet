@@ -1,10 +1,19 @@
-function ZonePet_searchForPetPet(command)
+function ZonePet_searchForPet(command)
   if InCombatLockdown() == true or UnitIsDeadOrGhost("player") then
     return
   end
 
-  local searchterm = strsub(command, 8)
-  local petname = strlower(searchterm)
+  local petname = strlower(command)
+  local searchterm = command
+
+  local firstWord = strsub(command, 0, 7)
+  print("'" .. firstWord .. "'")
+  if firstWord == 'search ' then
+    searchterm = strsub(command, 8)
+    petname = strlower(searchterm)
+  end
+  print('searching for ' .. petname)
+
   local totalMatch = nil
   local goodMatch = {}
   local fairMatch = {}

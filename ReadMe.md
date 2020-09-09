@@ -44,12 +44,13 @@ Mouse over the MiniMap button to see details about your currently summoned pet (
 - /zp about - show info about your current pet.
 - /zp back - summon & lock in the previous pet.
 - /zp lock - lock in the current pet until you left-click or use '/zp new' to get another.
-- /zp search - search for and summon a pet by name (searching is case-insensitive and will find partial matches).
+- /zp <name> - search for and summon a pet by name (searching is case-insensitive and will find partial matches).
 - /zp dismiss - dismiss your pet.
 - /zp fav - summon favorite pets only (if you have enough).
 - /zp all - choose from all your pets.
 - /zp mini - show or hide the MiniMap button.
 - /zp dupe - list any duplicate pets.
+- /zp - shows help
 
 If /zp conflicts with any other commands, use /zonepet instead.
 
@@ -63,6 +64,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 2.0.4: If you lock in a pat, it will get re-summoned whenever possible. Modified slash commands to match ZoneMount.
 - v 2.0.3: Really won't summon when you are stealthed (yes, I rolled a rogue...).
 - v 2.0.2: Better checking for good time to summon pet.
 - v 2.0.1: A locked pet will now always be re-summoned when you dismount.
