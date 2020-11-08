@@ -7,12 +7,10 @@ function ZonePet_searchForPet(command)
   local searchterm = command
 
   local firstWord = strsub(command, 0, 7)
-  print("'" .. firstWord .. "'")
   if firstWord == 'search ' then
     searchterm = strsub(command, 8)
     petname = strlower(searchterm)
   end
-  print('searching for ' .. petname)
 
   local totalMatch = nil
   local goodMatch = {}

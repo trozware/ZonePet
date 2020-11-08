@@ -64,6 +64,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 2.0.6: Fix for intermittent bug when re-summoning locked pet.
 - v 2.0.5: Updated for Shadowlands pre-patch.
 - v 2.0.4: If you lock in a pet, it will get re-summoned whenever possible. Modified slash commands to match ZoneMount.
 - v 2.0.3: Really won't summon when you are stealthed (yes, I rolled a rogue...).

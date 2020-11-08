@@ -73,10 +73,11 @@ function ZonePet_processEvent()
     return
   end
 
-  if ZonePet_LockPet == true then
+  if ZonePet_LockPet == true and ZonePet_LastPetID then
     C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
     ZonePet_checkSummonedPet(GetZoneText())
   else
+    ZonePet_LockPet = false
     ZonePet_summonForZone()
   end
 end 
