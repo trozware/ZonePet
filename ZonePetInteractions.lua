@@ -1,26 +1,26 @@
 function ZonePet_interaction(petName)
   local cats = { "Black Tabby Cat", "Bombay Cat", "Calico Cat", "Cat", "Cheetah Cub", "Cinder Kitten", "Cornish Rex Cat", "Cursed Birman", "Darkmoon Cub", "Felclaw Marsuul", "Feline Familiar", "Fluxfire Feline", "Mr. Bigglesworth", "Nightsaber Cub", "Orange Tabby Cat", "Orphaned Marsuul", "Panther Cub", "Pygmy Marsuul", "Risen Saber Kitten", "Sanctum Cub", "Sand Kitten", "Sapphire Cub", "Savage Cub", "Shadow", "Siamese Cat", "Silver Tabby Cat", "Smoochums", "Snow Cub", "Spectral Tiger Cub", "White Kitten", "Widget the Departed", "Winterspring Cub" }
-  if inTable(cats, petName) == true then
+  if ZonePet_inTable(cats, petName) == true then
     return "/sit"
   end
 
   local parrots = { "Cap'n Crackers", "Crackers", "Feathers" }
-  if inTable(parrots, petName) == true then
+  if ZonePet_inTable(parrots, petName) == true then
     return "/whistle"
   end
 
   local moonkin = { "Mini Tyrael", "Moon Moon", "Moonkin Hatchling" }
-  if inTable(moonkin, petName) == true then
+  if ZonePet_inTable(moonkin, petName) == true then
     return "/dance"
   end
 
   local penguins = { "Mr. Chilly", "Pengu" }
-  if inTable(penguins, petName) == true then
+  if ZonePet_inTable(penguins, petName) == true then
     return "/sexy"
   end
 
   local oddities = { "Discarded Experiment", "Faceless Mindlasher", "Faceless Minion" }
-  if inTable(penguins, petName) == true then
+  if ZonePet_inTable(penguins, petName) == true then
     return "/dance or /roar"
   end
 
@@ -51,7 +51,7 @@ function ZonePet_interaction(petName)
   return ""
 end
 
-function inTable(tbl, item)
+function ZonePet_inTable(tbl, item)
   for key, value in pairs(tbl) do
       if value == item then return true end
   end

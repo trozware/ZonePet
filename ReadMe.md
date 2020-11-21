@@ -25,8 +25,8 @@ Read the pet's name and description in the Chat or by mousing over the MiniMap b
 
 Bonus for sneaky types: no pet will be summoned while you are in Stealth mode and if you enter Stealth mode and are flagged for PvP, your pet will be dismissed so as not to attract unwanted attention.
 
-Most of **ZonePet**'s features are available from the MiniMap button - mouse over it to see them.  
-Some are only accessible though the `/zp` slash commands. Type '/zp' in the Chat window to see a list of these commands.
+Mouse over the MiniMap button to see some options for controlling **ZonePet**. Other settings are available through Game Menu > Interface > AddOns > ZonePet.  
+Type '/zp' in the Chat window or click "Show Slash Commands" in the AddOns panel to see a list of commands.
 
 ### MiniMap button
 
@@ -64,6 +64,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 2.1.0: Settings panel now in Game Menu > Interface > AddOns.
 - v 2.0.6: Fix for intermittent bug when re-summoning locked pet.
 - v 2.0.5: Updated for Shadowlands pre-patch.
 - v 2.0.4: If you lock in a pet, it will get re-summoned whenever possible. Modified slash commands to match ZoneMount.

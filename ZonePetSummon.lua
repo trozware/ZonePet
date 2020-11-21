@@ -98,13 +98,26 @@ function ZonePet_summonPet(zoneName)
 
     if owned and tooltip and string.find(tooltip, zoneName) then
       if zonePetMiniMap.favsOnly == false or favorite == true then
-        validPets[#validPets + 1] = { name = speciesName, ID = petID }
+        local isMatch = true
+        if zonePetMiniMap.noSpiders then
+          if ZonePet_petIsSpider(speciesName) then
+            isMatch = false
+          end
+        end
+        if isMatch then
+          validPets[#validPets + 1] = { name = speciesName, ID = petID }
+        end
       end
     end
   end
   -- print("|c0000FF00ZonePet: " .. "|c0000FFFFYou own " .. #validPets .. " pets from " .. zoneName)
 
+  -- for n = 1, #validPets do
+  --   print(validPets[n].name)
+  -- end
+
   if #validPets == 0 then
+    -- print('No pets for zone ' .. zoneName)
     ZonePet_summonRandomPet(zoneName, {})
   else
     if #validPets < 12 then
@@ -150,6 +163,7 @@ function ZonePet_summonRandomPet(zoneName, startingPets)
       end
     )
   else
+    -- print('Using built-in random')
     C_PetJournal.SummonRandomPet(true)
   end
 
@@ -170,14 +184,27 @@ function ZonePet_pickRandomPet(favsOnly, startingPets)
     isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
     if owned then
-      if favsOnly == false or favorite == true then
-        petList[#petList + 1] = { name = speciesName, ID = petID }
+      if zonePetMiniMap.favsOnly == false or favorite == true then
+        local isMatch = true
+        if zonePetMiniMap.noSpiders then
+          if ZonePet_petIsSpider(speciesName) then
+            isMatch = false
+          end
+        end
+        if isMatch then
+          petList[#petList + 1] = { name = speciesName, ID = petID }
+        end
       end
     end
   end
 
+  -- if #petList == 0 then
+  --   print('No random pets')
+  --   return -1
+  -- end
+
   if #petList == 0 then
-    return -1
+    return {}
   end
 
   local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
@@ -201,8 +228,16 @@ function ZonePet_addRandomPets(validPets, favsOnly, count)
     isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
     if owned then
-      if favsOnly == false or favorite == true then
-        petList[#petList + 1] = { name = speciesName, ID = petID }
+      if zonePetMiniMap.favsOnly == false or favorite == true then
+        local isMatch = true
+        if zonePetMiniMap.noSpiders then
+          if ZonePet_petIsSpider(speciesName) then
+            isMatch = false
+          end
+        end
+        if isMatch then
+          petList[#petList + 1] = { name = speciesName, ID = petID }
+        end
       end
     end
   end
@@ -210,6 +245,10 @@ function ZonePet_addRandomPets(validPets, favsOnly, count)
   if #petList == 0 then
     return {}
   end
+
+  -- for n = 1, #petList do
+  --   print(petList[n].name)
+  -- end
 
   local petIndex
   repeat
@@ -366,4 +405,26 @@ function ZonePet_showDuplicates()
       ChatFrame1:AddMessage("    |c00FFD100" .. dupePets[n])
     end
   end
+end
+
+
+function ZonePet_petIsSpider(petName)
+  local spiderNames = {'spider', 'tarantula', 'broodling', 'smolderweb', 'mechantula', 'swarmer', 'crypt', 'creepling', 'webspinner', 'venomspitter'}
+  local exceptions = {"Yu'la"}
+
+  for n = 1, #exceptions do
+    local foundMatch = strfind(strlower(petName), exceptions[n])
+    if foundMatch then
+      return false
+    end
+  end
+
+  for n = 1, #spiderNames do
+    local foundMatch = strfind(strlower(petName), spiderNames[n])
+    if foundMatch then
+      return true
+    end
+  end
+
+  return false
 end

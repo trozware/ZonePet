@@ -134,9 +134,10 @@ function ZonePet_userIsFree()
   local inCombat = InCombatLockdown()
   local isDead = UnitIsDeadOrGhost("player") or UnitIsFeignDeath("player")
   local isStealthed = IsStealthed() or ZonePet_Stealthed
+  local lootWindowCount = GetNumLootItems()
 
   if inCombat == true or isDead == true or spellName ~= nil or channelName ~= nil or 
-    ZonePet_IsChannelling == true or isStealthed == true then
+    ZonePet_IsChannelling == true or isStealthed == true or lootWindowCount > 0 then
       return "delay"
   end
 
