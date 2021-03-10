@@ -5,6 +5,7 @@ Keeps a pet active at all times, using a pet native to the current zone if possi
 Will not change more than once every 5 minutes, unless you lose your pet.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+v 2.1.1: Updated for Patch 9.0.5.
 v 2.1.0: Settings panel now in Game Menu > Interface > AddOns.
 v 2.0.6: Fix for intermittent bug when re-summoning locked pet.
 v 2.0.5: Updated for Shadowlands pre-patch.

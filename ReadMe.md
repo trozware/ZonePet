@@ -64,6 +64,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 2.1.1: Updated for Patch 9.0.5.
 - v 2.1.0: Settings panel now in Game Menu > Interface > AddOns.
 - v 2.0.6: Fix for intermittent bug when re-summoning locked pet.
 - v 2.0.5: Updated for Shadowlands pre-patch.
