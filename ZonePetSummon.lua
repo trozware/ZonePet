@@ -437,12 +437,14 @@ end
 function ZonePet_isInPvP()
   if UnitIsPVP("player") then
     -- print("UnitIsPVP")
+    ZonePet_IsPvP = true
     return true
   end
 
   local _, instanceType = IsInInstance()
   -- print('Instance type: ' .. instanceType)
   if instanceType == 'pvp' or instanceType == 'arena' then
+    ZonePet_IsPvP = true
     return true
   end
 
@@ -460,9 +462,11 @@ function ZonePet_isInPvP()
     --   print('in war mode')
     -- end
 
+    ZonePet_IsPvP = true
     return true
   end
 
+  ZonePet_IsPvP = false
   return false
 end
 

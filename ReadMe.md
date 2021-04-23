@@ -64,6 +64,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 2.2.1: Fix for summoning too frequently.
 - v 2.2.0: New options in Game Menu > Interface > AddOns for PvP and groups.
 - v 2.1.2: Updated while trying to fix CurseForge link.
 - v 2.1.1: Updated for Patch 9.0.5.

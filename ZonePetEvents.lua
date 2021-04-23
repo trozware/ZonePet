@@ -44,14 +44,13 @@ ZonePet_EventFrame:SetScript("OnEvent",
     elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" then
       ZonePet_IsChannelling = false
     elseif event == "PVP_TIMER_UPDATE" or event == 'WAR_MODE_STATUS_UPDATE' or event == 'UNIT_FLAGS' then
-      if ZonePet_isInPvP() then
-        if zonePetMiniMap.notInPvP == true then
+      if zonePetMiniMap.notInPvP == true then
+        local prevPvP = ZonePet_IsPvP
+        if ZonePet_isInPvP() == true and prevPvP == false then
           ZonePet_dismissCurrentPet()
-        else
+        elseif ZonePet_isInPvP() == false and prevPvP == true then
           ZonePet_summonForZone()
         end
-      else
-        ZonePet_summonForZone()
       end
     else
       ZonePet_processEvent()
