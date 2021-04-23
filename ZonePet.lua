@@ -38,7 +38,9 @@ function ZonePet:Initialize()
 			rounding = 10,
       Hidden = false,
       favsOnly = false,
-      noSpiders = false
+      noSpiders = false,
+      notInPvP = true,
+      notInGroup = false
 		}
 	end
 
@@ -97,7 +99,8 @@ function ZonePet:Initialize()
         ZonePet_summonPreviousPet()
       else
         ZonePet_LockPet = false
-        ZonePet_summonForZone()
+        local noSummonReason = ZonePet_summonForZone()
+        ZonePet_showReasonForNotSummoning(noSummonReason)
       end
     end
   end)
@@ -282,7 +285,8 @@ function ZonepetCommandHandler(msg)
     ZonePet_dismissCurrentPet()
   elseif msg == "change" or msg == "new" then
     ZonePet_LockPet = false
-    ZonePet_summonForZone()
+    local noSummonReason = ZonePet_summonForZone()
+    ZonePet_showReasonForNotSummoning(noSummonReason)
   elseif msg == "all" then
     zonePetMiniMap.favsOnly = false
     ZonePet_summonForZone()
@@ -301,6 +305,13 @@ function ZonepetCommandHandler(msg)
     ZonePet_displayHelp()
   else
     ZonePet_searchForPet(msg)
+  end
+end
+
+function ZonePet_showReasonForNotSummoning(reason)
+  if reason ~= '' then
+    ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFNo pet summoned because you are " .. reason .. ".")
+    ZonePet_PreviousMessage = ''
   end
 end
 
@@ -381,10 +392,38 @@ function ZonePet_addInterfaceOptions()
     ZonePet_summonForZone()
   end)
 
+  local btn9 = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
+	btn9:SetSize(26,26)
+  btn9:SetHitRectInsets(-2,-200,-2,-2)
+	btn9.text:SetText('  Do not summon pets while in PvP')
+  btn9.text:SetFontObject("GameFontNormal")
+  btn9:SetPoint('TOPLEFT', 40, -180)
+  btn9:SetChecked(zonePetMiniMap.notInPvP)
+  btn9.tooltipTitle = 'List Duplicates'
+  btn9.tooltipBody = 'Your duplicate pets will be listed in the chat.'
+  btn9:SetScript("OnClick",function() 
+    local isChecked = btn9:GetChecked()
+    ZonePet_changePvPOption(isChecked)
+  end)
+
+  local btn10 = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
+	btn10:SetSize(26,26)
+  btn10:SetHitRectInsets(-2,-200,-2,-2)
+	btn10.text:SetText('  Do not summon pets while in a group or raid')
+  btn10.text:SetFontObject("GameFontNormal")
+  btn10:SetPoint('TOPLEFT', 40, -220)
+  btn10:SetChecked(zonePetMiniMap.notInGroup)
+  btn10.tooltipTitle = 'List Duplicates'
+  btn10.tooltipBody = 'Your duplicate pets will be listed in the chat.'
+  btn10:SetScript("OnClick",function() 
+    local isChecked = btn10:GetChecked()
+    ZonePet_changeGroupOption(isChecked)
+  end)
+
   local btn4 = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
 	btn4:SetSize(160,26)
 	btn4:SetText('New Pet')
-  btn4:SetPoint('TOPLEFT', 40, -180)
+  btn4:SetPoint('TOPLEFT', 40, -260)
   btn4:SetScript("OnClick",function() 
     ZonePet_summonForZone()
   end)
@@ -392,7 +431,7 @@ function ZonePet_addInterfaceOptions()
   local btn7 = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
 	btn7:SetSize(160,26)
 	btn7:SetText('Previous Pet')
-  btn7:SetPoint('TOPLEFT', 220, -180)
+  btn7:SetPoint('TOPLEFT', 220, -260)
   btn7:SetScript("OnClick",function() 
     ZonePet_summonPreviousPet()
   end)
@@ -400,7 +439,7 @@ function ZonePet_addInterfaceOptions()
   local btn5 = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
 	btn5:SetSize(160,26)
 	btn5:SetText('Dismiss Pet')
-  btn5:SetPoint('TOPLEFT', 400, -180)
+  btn5:SetPoint('TOPLEFT', 400, -260)
   btn5:SetScript("OnClick",function() 
     ZonePet_HaveDismissed = true
     ZonePet_dismissCurrentPet()
@@ -411,7 +450,7 @@ function ZonePet_addInterfaceOptions()
 	btn6:SetHitRectInsets(-2,-160,-2,-2)
 	btn6.text:SetText('  Lock in current pet')
 	btn6.text:SetFontObject("GameFontNormal")
-  btn6:SetPoint('TOPLEFT', 40, -220)
+  btn6:SetPoint('TOPLEFT', 40, -300)
   btn6:SetChecked(ZonePet_LockPet)
   btn6:SetScript("OnClick",function() 
     local isChecked = btn6:GetChecked()
@@ -428,11 +467,11 @@ function ZonePet_addInterfaceOptions()
   local searchTitle = ZonePet.panel:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
   searchTitle:SetJustifyV('TOP')
   searchTitle:SetJustifyH('LEFT')
-  searchTitle:SetPoint('TOPLEFT', 40, -274)
+  searchTitle:SetPoint('TOPLEFT', 40, -354)
   searchTitle:SetText('Search for:')
 
   local searchBox = CreateFrame('editbox', nil, ZonePet.panel, 'InputBoxTemplate')
-  searchBox:SetPoint('TOPLEFT', 120, -270)
+  searchBox:SetPoint('TOPLEFT', 120, -350)
   searchBox:SetHeight(20)
   searchBox:SetWidth(140)
   searchBox:SetText('')
@@ -448,7 +487,7 @@ function ZonePet_addInterfaceOptions()
   local btn9 = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
 	btn9:SetSize(160,26)
 	btn9:SetText('Show Slash Commands')
-  btn9:SetPoint('TOPLEFT', 40, -330)
+  btn9:SetPoint('TOPLEFT', 40, -410)
   btn9:SetScript("OnClick",function() 
     ZonePet_displayHelp()
   end)
@@ -456,10 +495,11 @@ function ZonePet_addInterfaceOptions()
   local btn8 = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
 	btn8:SetSize(160,26)
 	btn8:SetText('List Duplicates in Chat')
-  btn8:SetPoint('TOPLEFT', 220, -330)
+  btn8:SetPoint('TOPLEFT', 220, -410)
   btn8.tooltipTitle = 'List Duplicates'
   btn8.tooltipBody = 'Your duplicate pets will be listed in the chat.'
   btn8:SetScript("OnClick",function() 
     ZonePet_showDuplicates()
   end)
+
 end

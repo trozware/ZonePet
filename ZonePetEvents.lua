@@ -7,6 +7,9 @@ ZonePet_EventFrame:RegisterEvent("UPDATE_STEALTH")
 ZonePet_EventFrame:RegisterEvent("VARIABLES_LOADED")
 ZonePet_EventFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 ZonePet_EventFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+ZonePet_EventFrame:RegisterEvent("PVP_TIMER_UPDATE")
+ZonePet_EventFrame:RegisterEvent("WAR_MODE_STATUS_UPDATE")
+ZonePet_EventFrame:RegisterEvent("UNIT_FLAGS")
 
 ZonePet_EventFrame:SetScript("OnEvent",
   function(self, event, ...)
@@ -16,7 +19,7 @@ ZonePet_EventFrame:SetScript("OnEvent",
       ZonePet:MinimapUpdatePosition()
     elseif event == "UPDATE_STEALTH" then
       ZonePet_Stealthed = IsStealthed()
-      if ZonePet_Stealthed == true and UnitIsPVP("player") == true then
+      if ZonePet_isInPvP() == true then
         ZonePet_dismissCurrentPet()
       elseif ZonePet_Stealthed == false then      
         ZonePet_processEvent()
@@ -40,6 +43,16 @@ ZonePet_EventFrame:SetScript("OnEvent",
       ZonePet_IsChannelling = true
     elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" then
       ZonePet_IsChannelling = false
+    elseif event == "PVP_TIMER_UPDATE" or event == 'WAR_MODE_STATUS_UPDATE' or event == 'UNIT_FLAGS' then
+      if ZonePet_isInPvP() then
+        if zonePetMiniMap.notInPvP == true then
+          ZonePet_dismissCurrentPet()
+        else
+          ZonePet_summonForZone()
+        end
+      else
+        ZonePet_summonForZone()
+      end
     else
       ZonePet_processEvent()
     end  
@@ -129,6 +142,16 @@ function ZonePet_shouldProcessEvent()
 end
 
 function ZonePet_userIsFree()
+  if zonePetMiniMap.notInPvP == true and ZonePet_isInPvP() == true then
+    ZonePet_dismissCurrentPet()
+    return 'no'
+  end
+
+  if zonePetMiniMap.notInGroup == true and ZonePet_isGrouped() == true then
+    ZonePet_dismissCurrentPet()
+    return 'no'
+  end
+
   local spellName, _, _, _, _, _, _, _, _, _ = UnitCastingInfo("player")
   local channelName, _, _, _, _, _, _, _ = UnitChannelInfo("player")
   local inCombat = InCombatLockdown()
@@ -148,4 +171,43 @@ function ZonePet_userIsFree()
   end
 
   return "yes"
+end
+
+function ZonePet_userIsBusyReason()
+  if zonePetMiniMap.notInPvP == true and ZonePet_isInPvP() == true then
+    return 'in PvP'
+  end
+
+  if zonePetMiniMap.notInGroup == true and ZonePet_isGrouped() == true then
+    return 'in a group'
+  end
+
+  if IsFlying() == true or 
+    UnitInVehicle("player") == true or
+    UnitOnTaxi("player") == true then
+      return "in a vehicle"
+  end
+
+  local spellName, _, _, _, _, _, _, _, _, _ = UnitCastingInfo("player")
+  local channelName, _, _, _, _, _, _, _ = UnitChannelInfo("player")
+  local inCombat = InCombatLockdown()
+  local isDead = UnitIsDeadOrGhost("player") or UnitIsFeignDeath("player")
+  local isStealthed = IsStealthed() or ZonePet_Stealthed
+  local lootWindowCount = GetNumLootItems()
+
+
+  if inCombat == true then
+      return "in combat"
+  end
+  if isDead == true then
+      return "dead"
+  end
+  if spellName ~= nil or channelName ~= nil or ZonePet_IsChannelling == true then
+      return "casting a spell"
+  end
+  if lootWindowCount > 0 then
+    return "looting"
+  end
+
+  return ""
 end

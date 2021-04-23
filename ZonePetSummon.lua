@@ -44,8 +44,9 @@ end
 function ZonePet_summonForZone()
   local zone = GetZoneText()
   if zone ~= nil and zone ~= "" then
-    ZonePet_summonPet(zone)
+    return ZonePet_summonPet(zone)
   end
+  return 'no zone'
 end
 
 function ZonePet_summonPreviousPet()
@@ -66,20 +67,23 @@ function ZonePet_lockCurrentPet()
 end
 
 function ZonePet_summonPet(zoneName)
-  if InCombatLockdown() == true or UnitIsDeadOrGhost("player") then
-    return
+  if InCombatLockdown() == true then
+    return 'in combat'
+  end
+  if UnitIsDeadOrGhost("player") then
+    return 'dead'
   end
 
-  if ZonePet_Stealthed == true then
-    if UnitIsPVP("player") == true then
+  if ZonePet_Stealthed == true or IsStealthed() then
+    -- if ZonePet_isInPvP() then
       ZonePet_dismissCurrentPet()
-    end
-    ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFStealth - no pet summoned.")
-    return
+    -- end
+    -- ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFStealth - no pet summoned.")
+    return 'in stealth'
   end
 
   if ZonePet_userIsFree() ~= 'yes' then
-    return
+    return ZonePet_userIsBusyReason()
   end
 
   C_PetJournal.SetAllPetTypesChecked(true)
@@ -146,6 +150,8 @@ function ZonePet_summonPet(zoneName)
     C_PetJournal.SummonPetByGUID(id)
     ZonePet_checkSummonedPet(zoneName)
   end
+
+  return ''
 end
 
 function ZonePet_summonRandomPet(zoneName, startingPets)
@@ -407,7 +413,6 @@ function ZonePet_showDuplicates()
   end
 end
 
-
 function ZonePet_petIsSpider(petName)
   local spiderNames = {'spider', 'tarantula', 'broodling', 'smolderweb', 'mechantula', 'swarmer', 'crypt', 'creepling', 'webspinner', 'venomspitter'}
   local exceptions = {"Yu'la"}
@@ -427,4 +432,78 @@ function ZonePet_petIsSpider(petName)
   end
 
   return false
+end
+
+function ZonePet_isInPvP()
+  if UnitIsPVP("player") then
+    -- print("UnitIsPVP")
+    return true
+  end
+
+  local _, instanceType = IsInInstance()
+  -- print('Instance type: ' .. instanceType)
+  if instanceType == 'pvp' or instanceType == 'arena' then
+    return true
+  end
+
+  if C_PvP.IsBattleground() or C_PvP.IsActiveBattlefield() or C_PvP.IsInBrawl() or C_PvP.IsWarModeActive() then
+    -- if C_PvP.IsBattleground() then
+    --   print('in battleground')
+    -- end
+    -- if C_PvP.IsActiveBattlefield() then
+    --   print('in battlefield')
+    -- end
+    -- if C_PvP.IsInBrawl() then
+    --   print('in brawl')
+    -- end
+    -- if C_PvP.IsWarModeActive() then
+    --   print('in war mode')
+    -- end
+
+    return true
+  end
+
+  return false
+end
+
+function ZonePet_isGrouped()
+  if IsInGroup() or IsInRaid() then
+    -- if IsInGroup() then
+    --   print('in group')
+    -- end
+    -- if IsInRaid() then
+    --   print('in raid')
+    -- end
+
+    return true
+  end
+
+  if UnitInAnyGroup() then
+    -- print('in any group')
+    return true
+  end
+
+  return false
+end
+
+function ZonePet_changePvPOption(newSetting)
+  zonePetMiniMap.notInPvP = newSetting
+  if ZonePet_isInPvP() then
+    if newSetting == true then
+      ZonePet_dismissCurrentPet()
+    else
+      ZonePet_summonForZone()
+    end
+  end
+end
+
+function ZonePet_changeGroupOption(newSetting)
+  zonePetMiniMap.notInGroup = newSetting
+  if ZonePet_isGrouped() then
+    if newSetting == true then
+      ZonePet_dismissCurrentPet()
+    else
+      ZonePet_summonForZone()
+    end
+  end
 end
