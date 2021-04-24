@@ -5,6 +5,7 @@ Keeps a pet active at all times, using a pet native to the current zone if possi
 Will not change more than once every 5 minutes, unless you lose your pet.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+v 2.2.2: Added info about interacting with Daisy the sloth.
 v 2.2.1: Fix for summoning too frequently.
 v 2.2.0: New options in Game Menu > Interface > AddOns for PvP and groups.
 v 2.1.2: Updated while trying to fix CurseForge link.

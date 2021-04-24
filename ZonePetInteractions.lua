@@ -46,6 +46,8 @@ function ZonePet_interaction(petName)
     return "/dance or /sit"
   elseif petName == "Zeradar" then
     return "/cheer"
+  elseif petName == "Daisy" then
+    return "/beckon"
   end
 
   return ""
