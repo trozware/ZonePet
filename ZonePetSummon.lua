@@ -265,6 +265,10 @@ function ZonePet_addRandomPets(validPets, favsOnly, count)
 end
 
 function ZonePet_checkSummonedPet(zoneName)
+  if zonePetMiniMap.hideInfo then
+    return
+  end
+
   C_Timer.After(2,
     function()
       if ZonePet_userIsFree() ~= 'yes' then

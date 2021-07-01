@@ -64,6 +64,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 2.3.0: Option to hide pet info in chat using Game Menu > Interface > AddOns > ZonePet.
 - v 2.2.2: Added info about interacting with Daisy the sloth.
 - v 2.2.1: Fix for summoning too frequently.
 - v 2.2.0: New options in Game Menu > Interface > AddOns for PvP and groups.

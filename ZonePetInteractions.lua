@@ -1,5 +1,11 @@
 function ZonePet_interaction(petName)
-  local cats = { "Black Tabby Cat", "Bombay Cat", "Calico Cat", "Cat", "Cheetah Cub", "Cinder Kitten", "Cornish Rex Cat", "Cursed Birman", "Darkmoon Cub", "Felclaw Marsuul", "Feline Familiar", "Fluxfire Feline", "Mr. Bigglesworth", "Nightsaber Cub", "Orange Tabby Cat", "Orphaned Marsuul", "Panther Cub", "Pygmy Marsuul", "Risen Saber Kitten", "Sanctum Cub", "Sand Kitten", "Sapphire Cub", "Savage Cub", "Shadow", "Siamese Cat", "Silver Tabby Cat", "Smoochums", "Snow Cub", "Spectral Tiger Cub", "White Kitten", "Widget the Departed", "Winterspring Cub" }
+  local cats = { "Black Tabby Cat", "Bombay Cat", "Calico Cat", "Cat", "Cheetah Cub", "Cinder Kitten", 
+  "Cornish Rex Cat", "Cursed Birman", "Darkmoon Cub", "Felclaw Marsuul", 
+  "Feline Familiar", "Fluxfire Feline", "Mr. Bigglesworth", "Nightsaber Cub", 
+  "Orange Tabby Cat", "Orphaned Marsuul", "Panther Cub", "Pygmy Marsuul", 
+  "Risen Saber Kitten", "Sanctum Cub", "Sand Kitten", "Sapphire Cub", "Savage Cub", 
+  "Shadow", "Siamese Cat", "Silver Tabby Cat", "Smoochums", "Snow Cub", 
+  "Spectral Tiger Cub", "White Kitten", "Widget the Departed", "Winterspring Cub", "Jiggles" }
   if ZonePet_inTable(cats, petName) == true then
     return "/sit"
   end
