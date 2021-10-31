@@ -26,7 +26,7 @@ function ZonePet_interaction(petName)
   end
 
   local oddities = { "Discarded Experiment", "Faceless Mindlasher", "Faceless Minion" }
-  if ZonePet_inTable(penguins, petName) == true then
+  if ZonePet_inTable(oddities, petName) == true then
     return "/dance or /roar"
   end
 

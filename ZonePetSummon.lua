@@ -94,13 +94,35 @@ function ZonePet_summonPet(zoneName)
   local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
   local validPets = {}
   local preferredCount = 12
+  local allowPet = true
+  local validZone = false
+  local specialZones = {'Trading Card Game', 'In-Game Shop', 'Promotion'}
 
   for n = 1, numOwned do
     local petID, speciesID, owned, customName, level, favorite, isRevoked,
     speciesName, icon, petType, companionID, tooltip, description,
     isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
-    if owned and tooltip and string.find(tooltip, zoneName) then
+    -- NEVER summon Disgusting Oozeling as it has negative effect
+    allowPet = true
+    if petID == 'BattlePet-0-0000122C75EA' or speciesName == 'Disgusting Oozeling' then
+      allowPet = false
+    end
+
+    validZone = false
+    if tooltip then 
+      if string.find(tooltip, zoneName) then
+        validZone = true
+      elseif string.find(tooltip, 'Trading Card Game') then
+        validZone = true
+      elseif string.find(tooltip, 'Game Shop') then
+        validZone = true
+      elseif string.find(tooltip, 'Promotion') then
+        validZone = true
+      end
+    end
+
+    if allowPet and owned and tooltip and validZone then
       if zonePetMiniMap.favsOnly == false or favorite == true then
         local isMatch = true
         if zonePetMiniMap.noSpiders then
@@ -515,3 +537,24 @@ function ZonePet_changeGroupOption(newSetting)
     end
   end
 end
+
+function ZonePet_Tests()
+  C_PetJournal.SetAllPetTypesChecked(true)
+  C_PetJournal.SetAllPetSourcesChecked(true)
+  C_PetJournal.ClearSearchFilter()
+
+  local numPets, numOwned = C_PetJournal.GetNumPets()
+
+  for n = 1, numOwned do
+    local petID, speciesID, owned, customName, level, favorite, isRevoked,
+    speciesName, icon, petType, companionID, tooltip, description,
+    isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
+
+      if speciesName == 'Daisy' or speciesName == 'Bananas' or speciesName == 'Warbot' then
+        print(speciesName, petID)
+        print(tooltip)
+      end
+  end
+end
+
+-- BattlePet-0-0000122C75EA
