@@ -17,6 +17,7 @@ ZonePet_IsChannelling = false
 ZonePet_IsPvP = false
 ZonePet_Icon = nil
 ZonePet_Tooltip = nil
+ZonePet_InterfaceMinimapButton = nil
 
 function ZonePet_displayMessage(msg)
   if msg ~= ZonePet_PreviousMessage then
@@ -57,9 +58,13 @@ function ZonePet_initMiniMapButton()
       if button == "RightButton" then
         if IsAltKeyDown() then
           zonePetMiniMap.Hidden=true
+          zonePetMiniMap.hide = true
           ZonePet_Icon:Hide("ZonePet")
           ZonepetCommandHandler('help')
           ZonePet_TooltipVisible = false
+          if ZonePet_InterfaceMinimapButton then 
+            ZonePet_InterfaceMinimapButton:SetChecked(zonePetMiniMap.Hidden == false)
+          end
         else
           ZonePet_HaveDismissed = true
           ZonePet_dismissCurrentPet()
@@ -90,6 +95,7 @@ function ZonePet_initMiniMapButton()
   C_Timer.After(0.5,
     function()
       if zonePetMiniMap.Hidden then
+        zonePetMiniMap.hide = true
         ZonePet_Icon:Hide("ZonePet")
       end
     end
@@ -148,9 +154,14 @@ function ZonepetCommandHandler(msg)
     if zonePetMiniMap.Hidden == true then
       ZonePet_Icon:Show("ZonePet")
       zonePetMiniMap.Hidden=false
+      zonePetMiniMap.hide = false
     else
       ZonePet_Icon:Hide("ZonePet")
       zonePetMiniMap.Hidden=true
+      zonePetMiniMap.hide = true
+    end
+    if ZonePet_InterfaceMinimapButton then 
+      ZonePet_InterfaceMinimapButton:SetChecked(zonePetMiniMap.Hidden == false)
     end
   elseif msg == "dismiss" then
     ZonePet_HaveDismissed = true
@@ -230,12 +241,15 @@ function ZonePet_addInterfaceOptions()
     local isChecked = btn1:GetChecked()
     if isChecked then
       ZonePet_Icon:Show("ZonePet")
+      zonePetMiniMap.hide = false
       zonePetMiniMap.Hidden=false
     else
       ZonePet_Icon:Hide("ZonePet")
+      zonePetMiniMap.hide = true
       zonePetMiniMap.Hidden=true
     end
   end)
+  ZonePet_InterfaceMinimapButton = btn1
   y = y - 40
 
   local btnFT = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
