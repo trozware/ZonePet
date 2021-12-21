@@ -15,6 +15,8 @@ ZonePet_HaveDismissed = false
 ZonePet_TooltipVisible = false
 ZonePet_IsChannelling = false
 ZonePet_IsPvP = false
+ZonePet_Icon = nil
+ZonePet_Tooltip = nil
 
 function ZonePet_displayMessage(msg)
   if msg ~= ZonePet_PreviousMessage then
@@ -33,10 +35,6 @@ function ZonePet:Initialize()
 
 	if not zonePetMiniMap then
 		zonePetMiniMap = {
-			dragable = true,
-			angle = 222,
-			radius = 80,
-			rounding = 10,
       Hidden = false,
       favsOnly = false,
       noSpiders = false,
@@ -46,240 +44,112 @@ function ZonePet:Initialize()
 		}
 	end
 
-  -- MinimapFrame
-	local f = CreateFrame("Frame", "ZonePet".."Minimap", Minimap)
-	f:SetFrameStrata("LOW")
-	f:SetWidth(33)
-	f:SetHeight(33)
-	f:SetPoint("CENTER")
-	f:EnableMouse(true)
-	self.Minimap = f
-	
-	-- Minimap
-	local b = CreateFrame("Button", nil, f)
-	b:SetAllPoints(f)
-	b:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
-  if zonePetMiniMap.Hidden then
-    b:Hide()
-  else
-    b:Show()
-  end
-  zonePetMiniMap.Button = b
-
-	-- MinimapIcon
-	local t = b:CreateTexture(nil, "BACKGROUND")
-	t:SetWidth(20)
-	t:SetHeight(20)
-	t:SetPoint("CENTER")
-	MinimapIconTexture = t
-	t:SetTexture("Interface\\ICONS\\Tracking_WildPet")
-	
-	-- MinimapBorder
-	t = b:CreateTexture(nil, "OVERLAY")
-	t:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
-	t:SetWidth(52)
-	t:SetHeight(52)
-	t:SetPoint("TOPLEFT")
-	
-	-- set some scripts
-  b:SetScript("OnClick", function(self, button, down)
-    if button == "RightButton" then
-      if IsAltKeyDown() then
-        zonePetMiniMap.Button:Hide()
-        zonePetMiniMap.Hidden=true
-        ZonepetCommandHandler('help')
-        ZonePet_TooltipVisible = false
-      else
-        ZonePet_HaveDismissed = true
-        ZonePet_dismissCurrentPet()
-      end
-    else
-      if IsAltKeyDown() then
-        ZonePet_lockCurrentPet()
-        ZonePet_showTooltip()
-      elseif IsShiftKeyDown() then
-        ZonePet_summonPreviousPet()
-      else
-        ZonePet_LockPet = false
-        local noSummonReason = ZonePet_summonForZone()
-        ZonePet_showReasonForNotSummoning(noSummonReason)
-      end
-    end
-  end)
-
-	b:SetScript("OnDragStart", function(self,event)
-    if(zonePetMiniMap.dragable) then
-      self.dragme = true
-      ZonePet_TooltipVisible = false
-      self:LockHighlight()
-    end
-	end)
-
-	b:SetScript("OnDragStop", function(self, event)
-    self.dragme = false
-    ZonePet_TooltipVisible = false
-    self:UnlockHighlight()
-  end)
-
-	b:SetScript("OnUpdate", function(self, event)
-    if self.dragme == true then
-      ZonePet_TooltipVisible = false
-      ZonePet:MinimapBeingDragged()
-    end
-  end)
-
-  b:SetScript("OnEnter", function(self, event)
-    ZonePetTooltip:SetOwner(self, "ANCHOR_NONE")
-    ZonePetTooltip:SetPoint("TOPRIGHT", self, "BOTTOM")
-    ZonePetTooltip:SetScript("OnHide", function(self, event)
-      -- this should make sure it never appears in the wrong place
-      ZonePet_TooltipVisible = false
-    end)
-    ZonePet_showTooltip(self)
-  end)
-
-  b:SetScript("OnLeave", function(self,event)
-    ZonePetTooltip:Hide()
-  end)
-
-  b:RegisterForDrag("LeftButton")
-  b:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-  b.dragme = false
-  
-  CreateFrame("GameTooltip", "ZonePetTooltip", UIParent, "GameTooltipTemplate")
-
   ZonePet_addInterfaceOptions()
+  ZonePet_initMiniMapButton()
 end
 
-function ZonePet_showTooltip(self)
+function ZonePet_initMiniMapButton()
+  local miniButton = LibStub("LibDataBroker-1.1"):NewDataObject("ZonePet", {
+    type = "data source",
+    text = "ZonePet",
+    icon = "Interface\\ICONS\\Tracking_WildPet",
+    OnClick = function(self, button)
+      if button == "RightButton" then
+        if IsAltKeyDown() then
+          zonePetMiniMap.Hidden=true
+          ZonePet_Icon:Hide("ZonePet")
+          ZonepetCommandHandler('help')
+          ZonePet_TooltipVisible = false
+        else
+          ZonePet_HaveDismissed = true
+          ZonePet_dismissCurrentPet()
+        end
+      else
+        if IsAltKeyDown() then
+          ZonePet_lockCurrentPet()
+          ZonePet_showTooltip(ZonePet_Tooltip)
+        elseif IsShiftKeyDown() then
+          ZonePet_summonPreviousPet()
+        else
+          ZonePet_LockPet = false
+          local noSummonReason = ZonePet_summonForZone()
+          ZonePet_showReasonForNotSummoning(noSummonReason)
+        end
+      end
+    end,
+    OnTooltipShow = function(tooltip)
+      ZonePet_Tooltip = tooltip
+      if not tooltip or not tooltip.AddLine then return end
+      ZonePet_showTooltip(tooltip)
+    end,
+  })
+
+  ZonePet_Icon = LibStub("LibDBIcon-1.0", true)
+  ZonePet_Icon:Register("ZonePet", miniButton, zonePetMiniMap)
+
+  C_Timer.After(0.5,
+    function()
+      if zonePetMiniMap.Hidden then
+        ZonePet_Icon:Hide("ZonePet")
+      end
+    end
+  )
+end
+
+function ZonePet_showTooltip(tooltip)
+  if not tooltip or not tooltip.AddLine then return end
+
   local petData = ZonePet_dataForCurrentPet()
-  ZonePetTooltip:ClearLines()
-  ZonePetTooltip:SetText("ZonePet", 1, 1, 1)
+  tooltip:ClearLines()
+  tooltip:SetText("ZonePet", 1, 1, 1)
 
   if petData then
-    ZonePetTooltip:AddLine(" ")
-    ZonePetTooltip:AddLine(" ")
-    ZonePetTooltip:AddTexture(petData.icon, {width = 32, height = 32})
-    ZonePetTooltip:AddLine(" ")
-    ZonePetTooltip:AddLine(petData.name, 0, 1, 0, true)
-    ZonePetTooltip:AddLine(petData.desc, 0, 1, 1, true)
+    tooltip:AddLine(" ")
+    tooltip:AddLine(" ")
+    tooltip:AddTexture(petData.icon, {width = 32, height = 32})
+    tooltip:AddLine(" ")
+    tooltip:AddLine(petData.name, 0, 1, 0, true)
+    tooltip:AddLine(petData.desc, 0, 1, 1, true)
 
     local interaction = ZonePet_interaction(petData.name)
     if interaction and interaction ~= "" then
-      ZonePetTooltip:AddLine("Target " .. petData.name .. " and type " .. interaction .. " to interact.", 1, 1, 1, true)
+      tooltip:AddLine("Target " .. petData.name .. " and type " .. interaction .. " to interact.", 1, 1, 1, true)
     end
   elseif ZonePet_HaveDismissed then
-    ZonePetTooltip:AddLine(" ")
+    tooltip:AddLine(" ")
     local msg = "You have dismissed your pet. No new pet will be summoned until you left-click here or use '/zp new'."
-    ZonePetTooltip:AddLine(msg , 0, 1, 1, true)
+    tooltip:AddLine(msg , 0, 1, 1, true)
   end
   
-  ZonePetTooltip:AddLine("\nLeft-click to summon a new pet, from this zone if possible.")
+  tooltip:AddLine("\nLeft-click to summon a new pet, from this zone if possible.")
 
   if ZonePet_PrevPetID ~= nil then
-    ZonePetTooltip:AddLine("Shift + Left-click to go back to the previous pet.")
+    tooltip:AddLine("Shift + Left-click to go back to the previous pet.")
   end
 
   if petData then
     if ZonePet_LockPet == true then
-      ZonePetTooltip:AddLine("You have locked in your current pet.")
-      ZonePetTooltip:AddLine("Left-click to summon a different pet.")
+      tooltip:AddLine("You have locked in your current pet.")
+      tooltip:AddLine("Left-click to summon a different pet.")
     else
-      ZonePetTooltip:AddLine("Alt + Left-click to lock in this pet.")
+      tooltip:AddLine("Alt + Left-click to lock in this pet.")
     end
   end
 
-  ZonePetTooltip:AddLine(" ")
-  ZonePetTooltip:AddLine("Right-click to dismiss your current pet.")
+  tooltip:AddLine(" ")
+  tooltip:AddLine("Right-click to dismiss your current pet.")
 
-  ZonePetTooltip:Show()
+  tooltip:Show()
   ZonePet_TooltipVisible = true
-end
-    
-local MinimapShapes = {
-	-- quadrant booleans (same order as SetTexCoord)
-	-- {upper-left, lower-left, upper-right, lower-right}
-	-- true = rounded, false = squared
-	["ROUND"] 								= {true, true, true, true},
-	["SQUARE"] 								= {false, false, false, false},
-	["CORNER-TOPLEFT"] 				= {true, false, false, false},
-	["CORNER-TOPRIGHT"] 			= {false, false, true, false},
-	["CORNER-BOTTOMLEFT"] 		= {false, true, false, false},
-	["CORNER-BOTTOMRIGHT"]	 	= {false, false, false, true},
-	["SIDE-LEFT"] 						= {true, true, false, false},
-	["SIDE-RIGHT"] 						= {false, false, true, true},
-	["SIDE-TOP"] 							= {true, false, true, false},
-	["SIDE-BOTTOM"] 					= {false, true, false, true},
-	["TRICORNER-TOPLEFT"] 		= {true, true, true, false},
-	["TRICORNER-TOPRIGHT"] 		= {true, false, true, true},
-	["TRICORNER-BOTTOMLEFT"] 	= {true, true, false, true},
-	["TRICORNER-BOTTOMRIGHT"] = {false, true, true, true},
-}
-  
-function ZonePet:MinimapUpdatePosition()
-	local radius, rounding, angle
-	
-	radius = zonePetMiniMap.radius
-	rounding = zonePetMiniMap.rounding
-	angle = math.rad(zonePetMiniMap.angle)
-	
-	local x = math.cos(angle)
-	local y = math.sin(angle)
-	local q = 1;
-	if x < 0 then
-		q = q + 1;	-- lower
-	end
-	if y > 0 then
-		q = q + 2;	-- right
-	end
-	local minimapShape = GetMinimapShape and GetMinimapShape() or "ROUND"
-	local quadTable = MinimapShapes[minimapShape]
-	if quadTable[q] then
-		x = x*radius
-		y = y*radius
-	else
-		local diagRadius = math.sqrt(2*(radius)^2)-rounding
-		x = math.max(-radius, math.min(x*diagRadius, radius))
-		y = math.max(-radius, math.min(y*diagRadius, radius))
-	end
-	ZonePet.Minimap:SetPoint("CENTER", Minimap, "CENTER", x, y-1)
-    if ZonePet.Minimap.Button then
-        ZonePet.Minimap.Button:Show()
-    end
-end
-
-function ZonePet:SetMinimapPosition(angle, radius, rounding)
-	zonePetMiniMap.angle = angle
-	if(radius) then
-		zonePetMiniMap.radius = radius
-	end
-	if(rounding) then
-		zonePetMiniMap.rounding = rounding
-	end
-	ZonePet:MinimapUpdatePosition()
-end
-
-function ZonePet:MinimapBeingDragged()
-	local mx, my = Minimap:GetCenter()
-	local mz = MinimapCluster:GetScale()
-	local cx, cy = GetCursorPosition(UIParent)
-	local cz = UIParent:GetEffectiveScale()
-	local v = math.deg(math.atan2(cy / cz - my * mz, cx / cz - mx * mz))
-	if v < 0 then
-		v = v + 360
-	elseif v > 360 then
-		v = v - 360
-	end
-	ZonePet:SetMinimapPosition(v)
 end
 
 function ZonepetCommandHandler(msg) 
   if msg == "mini" then
     if zonePetMiniMap.Hidden == true then
-      zonePetMiniMap.Button:Show()
+      ZonePet_Icon:Show("ZonePet")
       zonePetMiniMap.Hidden=false
     else
-      zonePetMiniMap.Button:Hide()
+      ZonePet_Icon:Hide("ZonePet")
       zonePetMiniMap.Hidden=true
     end
   elseif msg == "dismiss" then
@@ -359,10 +229,10 @@ function ZonePet_addInterfaceOptions()
   btn1:SetScript("OnClick",function() 
     local isChecked = btn1:GetChecked()
     if isChecked then
-      zonePetMiniMap.Button:Show()
+      ZonePet_Icon:Show("ZonePet")
       zonePetMiniMap.Hidden=false
     else
-      zonePetMiniMap.Button:Hide()
+      ZonePet_Icon:Hide("ZonePet")
       zonePetMiniMap.Hidden=true
     end
   end)
@@ -380,10 +250,6 @@ function ZonePet_addInterfaceOptions()
     zonePetMiniMap.hideInfo = not isChecked
   end)
   y = y - 40
-
-	-- button:SetScript("OnEnter",function(self) if not rematch:UIJustChanged() then rematch.ShowTooltip(self) end end)
-	-- button.tooltipTitle = L["Enable Rematch"]
-	-- button.tooltipBody = L["Check this to use Rematch in the pet journal."]
 
   local btn2 = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
 	btn2:SetSize(26,26)
@@ -480,7 +346,7 @@ function ZonePet_addInterfaceOptions()
     local isChecked = btn6:GetChecked()
     if isChecked then
       ZonePet_lockCurrentPet()
-      ZonePet_showTooltip()
+      ZonePet_showTooltip(ZonePet_Tooltip)
     else
       ZonePet_LockPet = false
       ZonePet_summonForZone()

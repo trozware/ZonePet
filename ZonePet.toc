@@ -1,10 +1,12 @@
 ## Title: ZonePet
 ## Interface: 90105
 ## Author: Sarah Reichelt
-## Version: 2.4.1
+## Version: 2.4.2
 
 ## SavedVariables: zonePetMiniMap
 ## X-Category: Companions
+
+embeds.xml
 
 ZonePet.lua
 ZonePetEvents.lua

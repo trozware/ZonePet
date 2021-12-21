@@ -335,7 +335,7 @@ function ZonePet_checkSummonedPet(zoneName)
       end
 
       if ZonePet_TooltipVisible == true then
-        ZonePet_showTooltip()
+        ZonePet_showTooltip(ZonePet_Tooltip)
       end
     end
   )

@@ -16,7 +16,6 @@ ZonePet_EventFrame:SetScript("OnEvent",
     -- print(event)
     if event == "VARIABLES_LOADED" then
       ZonePet:Initialize()
-      ZonePet:MinimapUpdatePosition()
     elseif event == "UPDATE_STEALTH" then
       ZonePet_Stealthed = IsStealthed()
       if ZonePet_isInPvP() == true then
