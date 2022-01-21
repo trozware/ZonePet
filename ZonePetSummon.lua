@@ -2,6 +2,7 @@ function ZonePet_shouldSummonSamePet()
   -- existing pet ID already confirmed
   if ZonePet_LockPet == true and ZonePet_userIsFree() == 'yes' then
     C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
+    ZonePet_checkSummon(ZonePet_LastPetID)
     ZonePet_checkSummonedPet(GetZoneText())
     return
   end
@@ -22,6 +23,7 @@ function ZonePet_shouldSummonSamePet()
 
   if ZonePet_userIsFree() == 'yes' then
     C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
+    ZonePet_checkSummon(ZonePet_LastPetID)
   end
 end
 
@@ -57,6 +59,7 @@ function ZonePet_summonPreviousPet()
   if ZonePet_PrevPetID ~= nil then
     ZonePet_LockPet = true
     C_PetJournal.SummonPetByGUID(ZonePet_PrevPetID)
+    ZonePet_checkSummon(ZonePet_PrevPetID)
     local zone = GetZoneText()
     ZonePet_checkSummonedPet(zone)
   end
@@ -170,6 +173,7 @@ function ZonePet_summonPet(zoneName)
     -- .. ". You own " .. #validPets .. " pets from this zone.")
 
     C_PetJournal.SummonPetByGUID(id)
+    ZonePet_checkSummon(id)
     ZonePet_checkSummonedPet(zoneName)
   end
 
@@ -188,6 +192,7 @@ function ZonePet_summonRandomPet(zoneName, startingPets)
     pcall(
       function()
         C_PetJournal.SummonPetByGUID(favPetId)
+        ZonePet_checkSummon(favPetId)
       end
     )
   else
@@ -233,6 +238,11 @@ function ZonePet_pickRandomPet(favsOnly, startingPets)
 
   if #petList == 0 then
     return {}
+  end
+
+  if #petList == 1 then
+    summonedPetGUID = ''
+    return petList[1].ID
   end
 
   local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
@@ -386,6 +396,18 @@ function ZonePet_chatDescription(summonedPetGUID)
   if interaction and interaction ~= "" then
     ZonePet_displayMessage("|c0000FFFFYou can interact with |c0000FF00" .. name .. " |c0000FFFFby targetting it and typing |cFFFFFFFF" .. interaction .. ".")
   end
+end
+
+function ZonePet_checkSummon(petID)
+  C_Timer.After(1,
+    function()
+      local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
+      if not summonedPetGUID and petID then
+        C_PetJournal.SummonPetByGUID(petID)
+        ZonePet_checkSummon(petID)
+      end
+    end
+  )
 end
 
 function ZonePet_dismissCurrentPet()

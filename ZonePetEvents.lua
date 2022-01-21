@@ -62,7 +62,7 @@ function ZonePet_processEvent()
   if shouldProcess == 'no' then
     return
   elseif shouldProcess == 'delay' then
-      C_Timer.After(5,
+    C_Timer.After(5,
       function()
         ZonePet_processEvent()
       end
@@ -86,6 +86,7 @@ function ZonePet_processEvent()
 
   if ZonePet_LockPet == true and ZonePet_LastPetID then
     C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
+    ZonePet_checkSummon(ZonePet_LastPetID)
     ZonePet_checkSummonedPet(GetZoneText())
   else
     ZonePet_LockPet = false
@@ -113,6 +114,7 @@ function ZonePet_processMountEvent()
       ZonePet_processEvent()
     elseif ZonePet_LockPet == true then
       C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
+      ZonePet_checkSummon(ZonePet_LastPetID)
       ZonePet_checkSummonedPet(GetZoneText())
     else
       ZonePet_shouldSummonSamePet()
