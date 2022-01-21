@@ -5,7 +5,7 @@ Keeps a pet active at all times, using a pet native to the current zone if possi
 Will not change more than once every 5 minutes, unless you lose your pet.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
-v 2.4.2: Fixed freeze if only one available pet. Better re-summon of locked pet.
+v 2.4.3: Fixed freeze if only one available pet. Better re-summon of locked pet.
 v 2.4.2: Improved minimap button to work better with minimap addons.
 v 2.4.1: Updated for Patch 9.1.5.
 v 2.4.0: Special pets from the in-game store, trading card game and promotions will be called more often. Disgusting Ooozeling will never be summoned automatically.
