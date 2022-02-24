@@ -62,6 +62,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 2.4.5: Updated for Patch 9.2.0 - hopefully this one will be published
 - v 2.4.4: Updated for Patch 9.2.0.
 - v 2.4.3: Fixed freeze if only one available pet. Better re-summon of locked pet.
 - v 2.4.2: Improved minimap button to work better with minimap addons.

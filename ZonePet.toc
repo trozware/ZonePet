@@ -1,7 +1,7 @@
 ## Title: ZonePet
 ## Interface: 90200
 ## Author: Sarah Reichelt
-## Version: 2.4.4
+## Version: 2.4.5
 
 ## SavedVariables: zonePetMiniMap
 ## X-Category: Companions
