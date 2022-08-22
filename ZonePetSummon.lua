@@ -108,8 +108,22 @@ function ZonePet_summonPet(zoneName)
 
     -- NEVER summon Disgusting Oozeling as it has negative effect
     allowPet = true
-    if petID == 'BattlePet-0-0000122C75EA' or speciesName == 'Disgusting Oozeling' then
+    if petID == nil or petID == 'BattlePet-0-0000122C75EA' or speciesName == 'Disgusting Oozeling' then
       allowPet = false
+    end
+
+    -- faction specific pets
+    if speciesName == 'Gillvanas' or speciesName == 'Finduin' then
+      allowPet = false
+    end
+
+    -- ignored names
+    for n = 1, #zonePetMiniMap.ignores do
+      local testName = string.lower(zonePetMiniMap.ignores[n])
+      local index = string.find(string.lower(speciesName), testName)
+      if index then
+        allowPet = false
+      end
     end
 
     validZone = false
@@ -216,7 +230,7 @@ function ZonePet_pickRandomPet(favsOnly, startingPets)
     speciesName, icon, petType, companionID, tooltip, description,
     isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
-    if owned then
+    if petID and owned then
       if zonePetMiniMap.favsOnly == false or favorite == true then
         local isMatch = true
         if zonePetMiniMap.noSpiders then
@@ -265,7 +279,7 @@ function ZonePet_addRandomPets(validPets, favsOnly, count)
     speciesName, icon, petType, companionID, tooltip, description,
     isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
-    if owned then
+    if petID and owned then
       if zonePetMiniMap.favsOnly == false or favorite == true then
         local isMatch = true
         if zonePetMiniMap.noSpiders then
@@ -561,22 +575,39 @@ function ZonePet_changeGroupOption(newSetting)
 end
 
 function ZonePet_Tests()
-  C_PetJournal.SetAllPetTypesChecked(true)
-  C_PetJournal.SetAllPetSourcesChecked(true)
-  C_PetJournal.ClearSearchFilter()
+  -- C_PetJournal.SetAllPetTypesChecked(true)
+  -- C_PetJournal.SetAllPetSourcesChecked(true)
+  -- C_PetJournal.ClearSearchFilter()
 
-  local numPets, numOwned = C_PetJournal.GetNumPets()
+  -- local numPets, numOwned = C_PetJournal.GetNumPets()
+  -- print('numPets: ' .. numPets)
+  -- print('numOwned: ' .. numOwned)
 
-  for n = 1, numOwned do
-    local petID, speciesID, owned, customName, level, favorite, isRevoked,
-    speciesName, icon, petType, companionID, tooltip, description,
-    isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
+  -- local petID, speciesID, owned, customName, level, favorite, isRevoked,
+  -- speciesName, icon, petType, companionID, tooltip, description,
+  -- isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(numPets)
+  -- print('Last pet:', speciesName, petID, speciesID)
 
-      if speciesName == 'Daisy' or speciesName == 'Bananas' or speciesName == 'Warbot' then
-        print(speciesName, petID)
-        print(tooltip)
-      end
-  end
+  -- petID, speciesID, owned, customName, level, favorite, isRevoked,
+  -- speciesName, icon, petType, companionID, tooltip, description,
+  -- isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(numOwned)
+  -- print('Last owned pet:', speciesName, petID, speciesID)
+
+  -- local badIDCount = 0
+
+  -- for n = 1, numPets do
+  --   local petID, speciesID, owned, customName, level, favorite, isRevoked,
+  --   speciesName, icon, petType, companionID, tooltip, description,
+  --   isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
+
+  --     if speciesName == 'Gillvanas' or speciesName == 'Finduin' then
+  --       --   print(tooltip)
+  --       print(speciesName, speciesID, petID)
+  --     end
+  --     -- if not petID then
+  --     --   badIDCount = badIDCount + 1
+  --     --   print('no id')
+  --     -- end
+  -- end
+  -- print('Pets with no ID:' .. badIDCount)
 end
-
--- BattlePet-0-0000122C75EA

@@ -1,3 +1,4 @@
+- v 2.5.0: Added ability to ignore certain pets.
 - v 2.4.5: Updated for Patch 9.2.0 - hopefully this one will be published
 - v 2.4.4: Updated for Patch 9.2.0.
 - v 2.4.3: Fixed freeze if only one available pet. Better re-summon of locked pet.

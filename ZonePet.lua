@@ -41,7 +41,8 @@ function ZonePet:Initialize()
       noSpiders = false,
       notInPvP = true,
       notInGroup = false,
-      hideInfo = false
+      hideInfo = false,
+      ignores = {}
 		}
 	end
 
@@ -218,7 +219,7 @@ end
 
 function ZonePet_addInterfaceOptions()
   local y = -16
-  ZonePet.panel = CreateFrame("Frame", "ZonePetPanel", UIParent )
+  ZonePet.panel = CreateFrame("Frame", "ZonePetPanel", UIParent)
   ZonePet.panel.name = "ZonePet"
   InterfaceOptions_AddCategory(ZonePet.panel)
 
@@ -278,6 +279,23 @@ function ZonePet_addInterfaceOptions()
     ZonePet_summonForZone()
   end)
   y = y - 40
+
+  -- local favButton = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
+	-- favButton:SetSize(160,26)
+	-- favButton:SetText('Set All as Favorite')
+  -- favButton:SetPoint('TOPLEFT', 40, y)
+  -- favButton:SetScript("OnClick",function() 
+  --   ZonePet_toggleFav(true)
+  -- end)
+
+  -- local unfavButton = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
+	-- unfavButton:SetSize(160,26)
+	-- unfavButton:SetText('Set None as Favorite')
+  -- unfavButton:SetPoint('TOPLEFT', 220, y)
+  -- unfavButton:SetScript("OnClick",function() 
+  --   ZonePet_toggleFav(false)
+  -- end)
+  -- y = y - 40
 
   local btn3 = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
 	btn3:SetSize(26,26)
@@ -407,4 +425,135 @@ function ZonePet_addInterfaceOptions()
     ZonePet_showDuplicates()
   end)
 
+  y = -60
+  local addIgnoreTitle = ZonePet.panel:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
+  addIgnoreTitle:SetJustifyV('TOP')
+  addIgnoreTitle:SetJustifyH('LEFT')
+  addIgnoreTitle:SetPoint('TOPLEFT', 300, y-6)
+  addIgnoreTitle:SetText('Toggle Ignore:')
+
+  local clearIgnoresBtn = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
+	clearIgnoresBtn:SetSize(100,26)
+	clearIgnoresBtn:SetText('Clear Ignores')
+  clearIgnoresBtn:SetPoint('TOPLEFT', 510, y)
+  clearIgnoresBtn.tooltipTitle = 'Clear your ignore list.'
+  clearIgnoresBtn.tooltipBody = 'All the names in your ignore list will be deleted.'
+  clearIgnoresBtn:SetScript("OnClick",function() 
+    zonePetMiniMap.ignores = {}
+    ignoresList:SetText(ZonePet_ListIgnores())
+  end)
+
+  local addIgnoreBox = CreateFrame('editbox', nil, ZonePet.panel, 'InputBoxTemplate')
+  addIgnoreBox:SetPoint('TOPLEFT', 400, y)
+  addIgnoreBox:SetHeight(20)
+  addIgnoreBox:SetWidth(100)
+  addIgnoreBox:SetText('')
+  addIgnoreBox:SetAutoFocus(false)
+  addIgnoreBox:ClearFocus()
+  addIgnoreBox:SetScript('OnEnterPressed', function(self)
+    self:SetAutoFocus(false) -- Clear focus when enter is pressed because ketho said so
+    self:ClearFocus()
+    ZonePet_IgnorePet(self:GetText())
+    self:SetText('')
+  end)
+  y = y - 40
+
+  ignoresList = ZonePet.panel:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
+  ignoresList:SetJustifyV('TOP')
+  ignoresList:SetJustifyH('LEFT')
+  ignoresList:SetHeight(180)
+  ignoresList:SetWidth(120)
+  ignoresList:SetPoint('TOPLEFT', 400, y)
+  ignoresList:SetText(ZonePet_ListIgnores())
 end
+
+function ZonePet_toggleFav(setting)
+  -- C_PetJournal.SetAllPetTypesChecked(true)
+  -- C_PetJournal.SetAllPetSourcesChecked(true)
+  -- C_PetJournal.ClearSearchFilter()
+
+  -- local numPets, numOwned = C_PetJournal.GetNumPets()
+
+  -- for n = 1, numOwned do
+  --   local petID, speciesID, owned, customName, level, favorite, isRevoked,
+  --   speciesName, icon, petType, companionID, tooltip, description,
+  --   isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
+
+  --   -- if setting == favorite then
+  --     print('Setting ' .. speciesName) 
+  --     if setting == true then
+  --       C_PetJournal.SetFavorite(petID, 1)
+  --     else
+  --       C_PetJournal.SetFavorite(petID, 0)
+  --     end
+  --   -- else 
+  --   --   print(speciesName .. ' already set') 
+  --   -- end
+  -- end
+end
+
+function ZonePet_IgnorePet(name)
+  if #name < 3 then
+    ZonePet_displayMessage("|c0000FF00ZonePet |c0000FFFFIgnore name must be at least 3 characters.")
+    return
+  end
+
+  if not zonePetMiniMap.ignores then
+    zonePetMiniMap.ignores = {}
+  end
+  
+
+  if #zonePetMiniMap.ignores >= 14 then
+    ZonePet_displayMessage("|c0000FF00ZonePet |c0000FFFFYou can only add 14 names to the ignore list.")
+    return
+  end
+  
+  local haveRemoved = false
+  local afterRemove = {}
+  local testName = string.lower(name)
+
+  for n = 1, #zonePetMiniMap.ignores do
+    local ignoreName = string.lower(zonePetMiniMap.ignores[n])
+    if ignoreName == testName then
+      haveRemoved = true
+    else
+      afterRemove[#afterRemove + 1] = zonePetMiniMap.ignores[n]
+    end
+  end
+
+  if haveRemoved then
+    zonePetMiniMap.ignores = afterRemove
+  else
+    zonePetMiniMap.ignores[#zonePetMiniMap.ignores + 1] = name
+  end
+
+  ignoresList:SetText(ZonePet_ListIgnores())
+end
+
+function ZonePet_ListIgnores()
+  if not zonePetMiniMap.ignores then
+    zonePetMiniMap.ignores = {}
+    return 'Type a name or partial name above to ignore any pet whose name contains that text (case-insensitive).\n\nEnter the same text again to remove it from the list.'
+  end
+
+  -- trim empties or shorts
+  local afterRemove = {}
+  for n = 1, #zonePetMiniMap.ignores do
+    if #zonePetMiniMap.ignores[n] >= 3 then
+      afterRemove[#afterRemove + 1] = zonePetMiniMap.ignores[n]
+    end
+  end
+  zonePetMiniMap.ignores = afterRemove
+
+  local ignoreText = ''
+  for n = 1, #zonePetMiniMap.ignores do
+    ignoreText = ignoreText .. zonePetMiniMap.ignores[n] .. '\n'
+  end
+  ignoreText = ignoreText:sub(1, -2)
+
+  if #ignoreText == 0 then
+    return 'Type a name or partial name above to ignore any pet whose name contains that text (case-insensitive).\n\nEnter the same text again to remove it from the list.'
+  end
+  return ignoreText 
+end
+
