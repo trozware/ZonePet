@@ -3,13 +3,13 @@ function ZonePet_searchForPet(command)
     return
   end
 
-  local petname = strlower(command)
+  local petname = string.lower(command)
   local searchterm = command
 
-  local firstWord = strsub(command, 0, 7)
+  local firstWord = string.sub(command, 0, 7)
   if firstWord == 'search ' then
-    searchterm = strsub(command, 8)
-    petname = strlower(searchterm)
+    searchterm = string.sub(command, 8)
+    petname = string.lower(searchterm)
   end
 
   local totalMatch = nil
@@ -27,12 +27,12 @@ function ZonePet_searchForPet(command)
     speciesName, icon, petType, companionID, tooltip, description,
     isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
-    if strlower(speciesName) == petname then
+    if string.lower(speciesName) == petname then
       totalMatch = petID
       break
     else
-      local strLocation1 = strfind(strlower(speciesName), petname)
-      local strLocation2 = strfind(strlower(speciesName), ' ' .. petname)
+      local strLocation1 = string.find(string.lower(speciesName), petname)
+      local strLocation2 = string.find(string.lower(speciesName), ' ' .. petname)
       if strLocation1 == 1 or strLocation2 ~= nil then
         goodMatch[#goodMatch + 1] = { name = speciesName, ID = petID }
       elseif strLocation1 ~= nil then

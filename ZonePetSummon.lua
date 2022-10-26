@@ -1,9 +1,11 @@
 function ZonePet_shouldSummonSamePet()
   -- existing pet ID already confirmed
-  if ZonePet_LockPet == true and ZonePet_userIsFree() == 'yes' then
-    C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
-    ZonePet_checkSummon(ZonePet_LastPetID)
-    ZonePet_checkSummonedPet(GetZoneText())
+  if ZonePet_LockPet == true then
+    if ZonePet_userIsFree() == 'yes' then
+      C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
+      ZonePet_checkSummon(ZonePet_LastPetID)
+      ZonePet_checkSummonedPet(GetZoneText())
+    end
     return
   end
 
@@ -99,7 +101,8 @@ function ZonePet_summonPet(zoneName)
   local preferredCount = 12
   local allowPet = true
   local validZone = false
-  local specialZones = {'Trading Card Game', 'In-Game Shop', 'Promotion'}
+  local isSpecial = false
+  local specialPets = {}
 
   for n = 1, numOwned do
     local petID, speciesID, owned, customName, level, favorite, isRevoked,
@@ -113,29 +116,37 @@ function ZonePet_summonPet(zoneName)
     end
 
     -- faction specific pets
-    if speciesName == 'Gillvanas' or speciesName == 'Finduin' then
+    if allowPet and speciesName == 'Gillvanas' or speciesName == 'Finduin' then
       allowPet = false
     end
 
     -- ignored names
-    for n = 1, #zonePetMiniMap.ignores do
-      local testName = string.lower(zonePetMiniMap.ignores[n])
-      local index = string.find(string.lower(speciesName), testName)
-      if index then
-        allowPet = false
+    if allowPet and speciesName then
+      for n = 1, #zonePetMiniMap.ignores do
+        if zonePetMiniMap.ignores[n] then
+          local testName = string.lower(zonePetMiniMap.ignores[n])
+          local index = string.find(string.lower(speciesName), testName)
+          if index then
+            allowPet = false
+          end
+        end
       end
     end
 
     validZone = false
+    isSpecial = false
     if tooltip then 
       if string.find(tooltip, zoneName) then
         validZone = true
       elseif string.find(tooltip, 'Trading Card Game') then
         validZone = true
+        isSpecial = true
       elseif string.find(tooltip, 'Game Shop') then
         validZone = true
+        isSpecial = true
       elseif string.find(tooltip, 'Promotion') then
         validZone = true
+        isSpecial = true
       end
     end
 
@@ -148,7 +159,11 @@ function ZonePet_summonPet(zoneName)
           end
         end
         if isMatch then
-          validPets[#validPets + 1] = { name = speciesName, ID = petID }
+          if isSpecial then
+            specialPets[#specialPets + 1] = { name = speciesName, ID = petID }
+          else
+            validPets[#validPets + 1] = { name = speciesName, ID = petID }
+          end
         end
       end
     end
@@ -158,6 +173,17 @@ function ZonePet_summonPet(zoneName)
   -- for n = 1, #validPets do
   --   print(validPets[n].name)
   -- end
+
+  if #specialPets > 0 then
+    local specialIndex, specialName, special_id
+
+    specialIndex = math.random(#specialPets)
+    specialName = specialPets[specialIndex].name
+    special_id = specialPets[specialIndex].ID
+
+    validPets[#validPets + 1] = { name = specialName, ID = special_id }
+  end
+
 
   if #validPets == 0 then
     -- print('No pets for zone ' .. zoneName)
@@ -480,14 +506,14 @@ function ZonePet_petIsSpider(petName)
   local exceptions = {"Yu'la"}
 
   for n = 1, #exceptions do
-    local foundMatch = strfind(strlower(petName), exceptions[n])
+    local foundMatch = string.find(string.lower(petName), exceptions[n])
     if foundMatch then
       return false
     end
   end
 
   for n = 1, #spiderNames do
-    local foundMatch = strfind(strlower(petName), spiderNames[n])
+    local foundMatch = string.find(string.lower(petName), spiderNames[n])
     if foundMatch then
       return true
     end
