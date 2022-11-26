@@ -64,6 +64,7 @@ Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id136
 
 ### Version History
 
+- v 2.5.2: Updated for 10.0.2. Better handling of faction pets.
 - v 2.5.1: Updated for 10.0. Fixed pet lock in. Won't summon purchased pets so often.
 - v 2.5.0: Added ability to ignore certain pets.
 - v 2.4.5: Updated for Patch 9.2.0 - hopefully this one will be published
