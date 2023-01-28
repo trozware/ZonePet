@@ -58,12 +58,11 @@ Mouse over the MiniMap button to see details about your currently summoned pet (
 
 **Zone Pet** is a companion add-on to **Zone Mount** which you can also get from [CurseForge](https://wow.curseforge.com/projects/ZoneMount). While the two add-ons are similar, they are completely independent so you do not have to install both (although I hope you will).
 
-Check out my iPhone app [WoW Stats](https://itunes.apple.com/app/wow-stats/id1364247768) for quick access to suggested talent builds and stat priorities.
-
 ---
 
 ### Version History
 
+- v 2.5.3: Updated for 10.0.5.
 - v 2.5.2: Updated for 10.0.2. Better handling of faction pets.
 - v 2.5.1: Updated for 10.0. Fixed pet lock in. Won't summon purchased pets so often.
 - v 2.5.0: Added ability to ignore certain pets.
