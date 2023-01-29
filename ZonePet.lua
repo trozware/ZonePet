@@ -8,6 +8,7 @@ ZonePet_LastError = 0
 ZonePet_LastPetID = nil
 ZonePet_PrevPetID = nil
 ZonePet_LockPet = false
+ZonePet_LastChatReport = 0
 
 ZonePet_Stealthed = IsStealthed()
 ZonePet_PreviousMessage = ""
@@ -42,6 +43,7 @@ function ZonePet:Initialize()
       notInPvP = true,
       notInGroup = false,
       hideInfo = false,
+      slowInfo = false,
       ignores = {}
 		}
 	end
@@ -254,6 +256,8 @@ function ZonePet_addInterfaceOptions()
   y = y - 40
 
   local btnFT = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
+  local btnSlow = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
+
 	btnFT:SetSize(26,26)
 	btnFT:SetHitRectInsets(-2,-200,-2,-2)
 	btnFT.text:SetText('  Show pet info in Chat')
@@ -263,6 +267,30 @@ function ZonePet_addInterfaceOptions()
   btnFT:SetScript("OnClick",function() 
     local isChecked = btnFT:GetChecked()
     zonePetMiniMap.hideInfo = not isChecked
+    btnSlow:SetEnabled(not zonePetMiniMap.hideInfo)
+    if zonePetMiniMap.hideInfo then
+      btnSlow.text:SetFontObject("GameFontDisable")
+    else
+      btnSlow.text:SetFontObject("GameFontNormal")
+    end
+  end)
+  y = y - 40
+
+	btnSlow:SetSize(26,26)
+	btnSlow:SetHitRectInsets(-2,-200,-2,-2)
+	btnSlow.text:SetText('  Not more than once every 3 minutes')
+  btnSlow:SetPoint('TOPLEFT', 80, y)
+  btnSlow:SetChecked(zonePetMiniMap.slowInfo)
+  btnSlow:SetEnabled(not zonePetMiniMap.hideInfo)
+  if zonePetMiniMap.hideInfo then
+    btnSlow.text:SetFontObject("GameFontDisable")
+  else
+    btnSlow.text:SetFontObject("GameFontNormal")
+  end
+  btnSlow:SetScript("OnClick",function() 
+    local isChecked = btnSlow:GetChecked()
+    zonePetMiniMap.slowInfo = isChecked
+    ZonePet_LastChatReport = 0
   end)
   y = y - 40
 

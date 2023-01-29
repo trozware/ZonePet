@@ -5,6 +5,7 @@ Keeps a pet active at all times, using a pet native to the current zone if possi
 Will not change more than once every 5 minutes, unless you lose your pet.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+v 2.5.4: Stop repeated attempts to summon. Added an option to show info in chat log less often.
 v 2.5.3: Updated for 10.0.5.
 v 2.5.2: Updated for 10.0.2. Better handling of faction pets.
 v 2.5.1: Updated for 10.0. Fixed pet lock in. Won't summon purchased pets so often.

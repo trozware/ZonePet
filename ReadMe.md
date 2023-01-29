@@ -25,7 +25,7 @@ Read the pet's name and description in the Chat or by mousing over the MiniMap b
 
 Bonus for sneaky types: no pet will be summoned while you are in Stealth mode and if you enter Stealth mode and are flagged for PvP, your pet will be dismissed so as not to attract unwanted attention.
 
-Mouse over the MiniMap button to see some options for controlling **ZonePet**. Other settings are available through Game Menu > Interface > AddOns > ZonePet.  
+Mouse over the MiniMap button to see some options for controlling **ZonePet**. Other settings are available through Game Menu > Options > AddOns > ZonePet.  
 Type '/zp' in the Chat window or click "Show Slash Commands" in the AddOns panel to see a list of commands.
 
 NEW: To ignore specific pets, go to Game Menu > Interface > AddOns > ZonePet. type a name or partial name into the ignore field and press Return/Enter to add it to the list. If the entry is already in the list, it will be removed, or you can click the button to clear the entire list. This will block any pets with names containing the entered text, case does not matter. E.g. entering "rat" will block all pet names that include the text "rat" which covers "Fjord Rat", "Rat Snake" and "Creepy Crate" as well as many others.
@@ -62,6 +62,7 @@ Mouse over the MiniMap button to see details about your currently summoned pet (
 
 ### Version History
 
+- v 2.5.4: Stop repeated attempts to summon. Added an option to show info in chat log less often.
 - v 2.5.3: Updated for 10.0.5.
 - v 2.5.2: Updated for 10.0.2. Better handling of faction pets.
 - v 2.5.1: Updated for 10.0. Fixed pet lock in. Won't summon purchased pets so often.

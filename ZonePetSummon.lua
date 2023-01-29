@@ -337,8 +337,14 @@ function ZonePet_addRandomPets(validPets, favsOnly, count)
 end
 
 function ZonePet_checkSummonedPet(zoneName)
+  local showChat = true
   if zonePetMiniMap.hideInfo then
-    return
+    showChat = false
+  end
+
+  local now = GetTime()           -- time in seconds
+  if zonePetMiniMap.slowInfo and now - ZonePet_LastChatReport < 180 then
+    showChat = false
   end
 
   C_Timer.After(2,
@@ -362,21 +368,24 @@ function ZonePet_checkSummonedPet(zoneName)
           zoneMatches = true
         end
 
-        local favText = ''
-        if zonePetMiniMap.favsOnly then
-          favText = 'favorite '
-        end
-        if zoneMatches == false or zoneName == '' then
-            ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned random " .. favText .. "pet: " .. "|c00FFD100" .. name .. ".")
-        else
-            ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned " .. favText .. "|c00FFD100" .. name .. "|c0000FFFF from " .. zoneName .. ".")
-        end
-        if description and description ~= "" then
-          ZonePet_displayMessage("|c0000FFFF" .. description)
-        end
-        local interaction = ZonePet_interaction(name)
-        if interaction and interaction ~= "" then
-          ZonePet_displayMessage("|c0000FFFFTarget |c0000FF00" .. name .. " |c0000FFFFand type |cFFFFFFFF" .. interaction .. " to interact.")
+        if showChat then
+          local favText = ''
+          if zonePetMiniMap.favsOnly then
+            favText = 'favorite '
+          end
+          if zoneMatches == false or zoneName == '' then
+              ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned random " .. favText .. "pet: " .. "|c00FFD100" .. name .. ".")
+          else
+              ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned " .. favText .. "|c00FFD100" .. name .. "|c0000FFFF from " .. zoneName .. ".")
+          end
+          if description and description ~= "" then
+            ZonePet_displayMessage("|c0000FFFF" .. description)
+          end
+          local interaction = ZonePet_interaction(name)
+          if interaction and interaction ~= "" then
+            ZonePet_displayMessage("|c0000FFFFTarget |c0000FF00" .. name .. " |c0000FFFFand type |cFFFFFFFF" .. interaction .. " to interact.")
+          end
+          ZonePet_LastChatReport = now
         end
 
         ZonePet_LastError = 0
@@ -439,15 +448,18 @@ function ZonePet_chatDescription(summonedPetGUID)
 end
 
 function ZonePet_checkSummon(petID)
-  C_Timer.After(1,
-    function()
-      local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
-      if not summonedPetGUID and petID then
-        C_PetJournal.SummonPetByGUID(petID)
-        ZonePet_checkSummon(petID)
-      end
-    end
-  )
+  -- This is causing endless streams of GCD usage at places like Rostrum of Transformation
+  -- It's used in several places, but I think removing it is the better option
+
+  -- C_Timer.After(1,
+  --   function()
+  --     local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
+  --     if not summonedPetGUID and petID then
+  --       C_PetJournal.SummonPetByGUID(petID)
+  --       ZonePet_checkSummon(petID)
+  --     end
+  --   end
+  -- )
 end
 
 function ZonePet_dismissCurrentPet()
