@@ -168,7 +168,7 @@ function ZonePet_summonPet(zoneName)
       end
     end
   end
-  -- print("|c0000FF00ZonePet: " .. "|c0000FFFFYou own " .. #validPets .. " pets from " .. zoneName)
+  -- print("|c0000FF00ZonePet: " .. "|c0000FFFFYou own " .. #validPets .. " valid pets from " .. zoneName)
 
   -- for n = 1, #validPets do
   --   print(validPets[n].name)
@@ -183,6 +183,7 @@ function ZonePet_summonPet(zoneName)
 
     validPets[#validPets + 1] = { name = specialName, ID = special_id }
   end
+  -- print("|c0000FF00ZonePet: " .. "|c0000FFFFYou own " .. #validPets .. " valid & special pets from " .. zoneName)
 
 
   if #validPets == 0 then
@@ -200,21 +201,33 @@ function ZonePet_summonPet(zoneName)
       -- list enough random pets to bring it up to a decent number, then choose
       validPets = ZonePet_addRandomPets(validPets, zonePetMiniMap.favsOnly, preferredCount)
     end
-  
+    -- print("|c0000FF00ZonePet: " .. "|c0000FFFFYou own " .. #validPets .. " valid, special & random pets from " .. zoneName)
+    -- for n = 1, #validPets do
+    --   print(validPets[n].name)
+    -- end
+
     local petIndex, name, id
-    repeat
-      petIndex = math.random(#validPets)
+    if #validPets == 1 then
+      petIndex = 1
       name = validPets[petIndex].name
       id = validPets[petIndex].ID
-    until id ~= summonedPetGUID
+    else
+      repeat
+        petIndex = math.random(#validPets)
+        name = validPets[petIndex].name
+        id = validPets[petIndex].ID
+      until id ~= summonedPetGUID
+    end
 
     ZonePet_HaveDismissed = false
     ZonePet_LastPetChange = GetTime()
     -- .. ". You own " .. #validPets .. " pets from this zone.")
 
-    C_PetJournal.SummonPetByGUID(id)
-    ZonePet_checkSummon(id)
-    ZonePet_checkSummonedPet(zoneName)
+    if id ~= summonedPetGUID then
+      C_PetJournal.SummonPetByGUID(id)
+      ZonePet_checkSummon(id)
+      ZonePet_checkSummonedPet(zoneName)
+    end
   end
 
   return ''
@@ -333,7 +346,18 @@ function ZonePet_addRandomPets(validPets, favsOnly, count)
     petIndex = math.random(#petList)
     validPets[#validPets + 1] = petList[petIndex]
   until #validPets == count
-  return validPets
+
+  local hash = {}
+  local uniquePets = {}
+
+  for _, pet in ipairs(validPets) do
+    if (not hash[pet.ID]) then
+      uniquePets[#uniquePets+1] = pet
+      hash[pet.ID] = true
+    end
+  end
+
+  return uniquePets
 end
 
 function ZonePet_checkSummonedPet(zoneName)
