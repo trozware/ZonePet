@@ -408,6 +408,11 @@ function ZonePet_checkSummonedPet(zoneName)
           local interaction = ZonePet_interaction(name)
           if interaction and interaction ~= "" then
             ZonePet_displayMessage("|c0000FFFFTarget |c0000FF00" .. name .. " |c0000FFFFand type |cFFFFFFFF" .. interaction .. " to interact.")
+          else
+            interaction = ZonePet_extraUse(name)
+            if interaction and interaction ~= "" then
+              ZonePet_displayMessage("|c0000FF00" .. name .. " |c0000FFFF" .. interaction)
+            end
           end
           ZonePet_LastChatReport = now
         end
@@ -467,7 +472,12 @@ function ZonePet_chatDescription(summonedPetGUID)
   
   local interaction = ZonePet_interaction(name)
   if interaction and interaction ~= "" then
-    ZonePet_displayMessage("|c0000FFFFYou can interact with |c0000FF00" .. name .. " |c0000FFFFby targetting it and typing |cFFFFFFFF" .. interaction .. ".")
+    ZonePet_displayMessage("|c0000FFFFTarget |c0000FF00" .. name .. " |c0000FFFFand type |cFFFFFFFF" .. interaction .. " to interact.")
+  else
+    interaction = ZonePet_extraUse(name)
+    if interaction and interaction ~= "" then
+      ZonePet_displayMessage("|c0000FF00" .. name .. " |c0000FFFF" .. interaction)
+    end
   end
 end
 
