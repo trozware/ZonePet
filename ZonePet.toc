@@ -1,7 +1,7 @@
 ## Title: ZonePet
-## Interface: 100200
+## Interface: 10020
 ## Author: Sarah Reichelt
-## Version: 2.6.1
+## Version: 2.6.2
 
 ## SavedVariables: zonePetMiniMap
 ## X-Category: Companions
