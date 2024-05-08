@@ -1,0 +1,25 @@
+ZonePet quests to avoid
+
+Becoming the Hunt	   Quest ID: 59721
+
+Children's Week		May 1 - May 8
+Check if "Orphan Whistle" in bag?
+	there are lots of possibles
+
+
+
+questLogIndex = C_QuestLog.GetLogIndexForQuestID(questID)
+	returns nil if not on quest
+
+
+itemId = GetContainerItemID(bag, slot)
+bag = 0 - 4
+
+itemName = C_Item.GetItemNameByID(itemInfo)
+
+
+/run print(C_QuestLog.GetLogIndexForQuestID(59721))
+/run print(C_QuestLog.GetLogIndexForQuestID(62457))
+
+/run print(GetContainerItemID(0, 0)).  -- 160452
+/run print(C_Item.GetItemNameByID(160452))

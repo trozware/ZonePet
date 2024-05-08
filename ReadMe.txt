@@ -5,6 +5,7 @@ Keeps a pet active at all times, using a pet native to the current zone if possi
 Will not change more than once every 5 minutes, unless you lose your pet.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+v 2.6.4: Updated for 10.2.7.
 v 2.6.3: Updated for 10.2.6.
 v 2.6.2: Updated for 10.2.5.
 v 2.6.1: Updated for 10.2.0.
