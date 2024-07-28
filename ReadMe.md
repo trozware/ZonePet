@@ -62,6 +62,7 @@ Mouse over the MiniMap button to see details about your currently summoned pet (
 
 ### Version History
 
+- v 2.6.5: Updated for 11.0.
 - v 2.6.4: Updated for 10.2.7.
 - v 2.6.3: Updated for 10.2.6.
 - v 2.6.2: Updated for 10.2.5.

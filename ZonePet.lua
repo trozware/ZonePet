@@ -223,7 +223,12 @@ function ZonePet_addInterfaceOptions()
   local y = -16
   ZonePet.panel = CreateFrame("Frame", "ZonePetPanel", UIParent)
   ZonePet.panel.name = "ZonePet"
-  InterfaceOptions_AddCategory(ZonePet.panel)
+
+  -- InterfaceOptions_AddCategory(ZonePet.panel)
+
+  local category, layout = Settings.RegisterCanvasLayoutCategory(ZonePet.panel, ZonePet.panel.name, ZonePet.panel.name)
+  category.ID = ZonePet.panel.name
+  Settings.RegisterAddOnCategory(category)
 
   local Title = ZonePet.panel:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
   Title:SetJustifyV('TOP')
