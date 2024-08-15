@@ -234,7 +234,7 @@ function ZonePet_addInterfaceOptions()
   Title:SetJustifyV('TOP')
   Title:SetJustifyH('LEFT')
   Title:SetPoint('TOPLEFT', 16, y)
-  local v = GetAddOnMetadata("ZonePet", "Version") 
+  local v = C_AddOns.GetAddOnMetadata("ZonePet", "Version") 
   Title:SetText('ZonePet v' .. v)
   y = y - 44
 

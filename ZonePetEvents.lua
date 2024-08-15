@@ -123,7 +123,7 @@ function ZonePet_processMountEvent()
 end
 
 function ZonePet_ShowWelcome()
-  local v = GetAddOnMetadata("ZonePet", "Version") 
+  local v = C_AddOns.GetAddOnMetadata("ZonePet", "Version") 
   ZonePet_displayMessage("|c0000FF00Welcome to ZonePet v" .. v .. ": " .. "|c0000FFFFType |c00FFD100/zp |c0000FFFFfor help.")
 end
 
