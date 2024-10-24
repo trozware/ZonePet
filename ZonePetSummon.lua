@@ -35,7 +35,7 @@ function ZonePet_petIsFromThisZone(currentPetID)
   isWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(currentPetID)
 
   local zoneName = GetZoneText()
-  if zoneName == nil and zoneName == "" then
+  if zoneName == nil or zoneName == "" then
     return false
   end
 
@@ -135,7 +135,7 @@ function ZonePet_summonPet(zoneName)
 
     validZone = false
     isSpecial = false
-    if tooltip then 
+    if tooltip and #tooltip > 0 then 
       if string.find(tooltip, zoneName) then
         validZone = true
       elseif string.find(tooltip, 'Trading Card Game') then
@@ -148,6 +148,8 @@ function ZonePet_summonPet(zoneName)
         validZone = true
         isSpecial = true
       end
+    else
+      tooltip = nil
     end
 
     if allowPet and owned and tooltip and validZone then
@@ -381,7 +383,7 @@ function ZonePet_checkSummonedPet(zoneName)
       ZonePet_PrevPetID = ZonePet_LastPetID
       ZonePet_LastPetID = summonedPetGUID
 
-      if summonedPetGUID then
+      if summonedPetGUID and #summonedPetGUID > 0 then
         local speciesID, customName, level, xp, maxXp, displayID, isFavorite,
         name, icon, petType, creatureID, sourceText, description,
         isWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
@@ -435,7 +437,7 @@ function ZonePet_dataForCurrentPet()
   end
 
   local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
-  if summonedPetGUID then
+  if summonedPetGUID and #summonedPetGUID > 0 then
     local speciesID, customName, level, xp, maxXp, displayID, isFavorite,
       name, icon, petType, creatureID, sourceText, description,
       sWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
@@ -452,7 +454,7 @@ function ZonePet_displayInfoForCurrentPet()
   ZonePet_ShowWelcome()
 
   local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
-  if summonedPetGUID then
+  if summonedPetGUID and #summonedPetGUID > 0 then
     ZonePet_chatDescription(summonedPetGUID)
   else
     msg = "|c0000FF00ZonePet: " .. "|c0000FFFFYou have no pet active right now."
@@ -502,7 +504,7 @@ function ZonePet_dismissCurrentPet()
   end
 
   local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
-  if summonedPetGUID then
+  if summonedPetGUID and #summonedPetGUID > 0 then
     C_PetJournal.SummonPetByGUID(summonedPetGUID)
     ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFDismissing pet.")
     ZonePet_checkSummonedPet('')

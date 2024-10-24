@@ -28,7 +28,7 @@ Bonus for sneaky types: no pet will be summoned while you are in Stealth mode an
 Mouse over the MiniMap button to see some options for controlling **ZonePet**. Other settings are available through Game Menu > Options > AddOns > ZonePet.  
 Type '/zp' in the Chat window or click "Show Slash Commands" in the AddOns panel to see a list of commands.
 
-NEW: To ignore specific pets, go to Game Menu > Interface > AddOns > ZonePet. type a name or partial name into the ignore field and press Return/Enter to add it to the list. If the entry is already in the list, it will be removed, or you can click the button to clear the entire list. This will block any pets with names containing the entered text, case does not matter. E.g. entering "rat" will block all pet names that include the text "rat" which covers "Fjord Rat", "Rat Snake" and "Creepy Crate" as well as many others.
+NEW: To ignore specific pets, go to Game Menu > Interface > AddOns > ZonePet. Type a name or partial name into the ignore field and press Return/Enter to add it to the list. If the entry is already in the list, it will be removed, or you can click the button to clear the entire list. This will block any pets with names containing the entered text, case does not matter. E.g. entering "rat" will block all pet names that include the text "rat" which covers "Fjord Rat", "Rat Snake" and "Creepy Crate" as well as many others.
 
 ### MiniMap button
 
@@ -62,6 +62,7 @@ Mouse over the MiniMap button to see details about your currently summoned pet (
 
 ### Version History
 
+- v 2.6.7: Updated for 11.0..5 and fixed minimap tooltip display.
 - v 2.6.6: Updated to fix startup crash on 11.0.2.
 - v 2.6.5: Updated for 11.0.
 - v 2.6.4: Updated for 10.2.7.

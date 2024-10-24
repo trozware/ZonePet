@@ -53,7 +53,7 @@ function ZonePet:Initialize()
 end
 
 function ZonePet_initMiniMapButton()
-  local miniButton = LibStub("LibDataBroker-1.1"):NewDataObject("ZonePet", {
+  local miniButton = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("ZonePet", {
     type = "data source",
     text = "ZonePet",
     icon = "Interface\\ICONS\\Tracking_WildPet",
@@ -92,7 +92,7 @@ function ZonePet_initMiniMapButton()
     end,
   })
 
-  ZonePet_Icon = LibStub("LibDBIcon-1.0", true)
+  ZonePet_Icon = LibStub:GetLibrary("LibDBIcon-1.0", true)
   ZonePet_Icon:Register("ZonePet", miniButton, zonePetMiniMap)
 
   C_Timer.After(0.5,
@@ -109,6 +109,7 @@ function ZonePet_showTooltip(tooltip)
   if not tooltip or not tooltip.AddLine then return end
 
   local petData = ZonePet_dataForCurrentPet()
+
   tooltip:ClearLines()
   tooltip:SetText("ZonePet", 1, 1, 1)
 
@@ -473,7 +474,7 @@ function ZonePet_addInterfaceOptions()
   clearIgnoresBtn.tooltipBody = 'All the names in your ignore list will be deleted.'
   clearIgnoresBtn:SetScript("OnClick",function() 
     zonePetMiniMap.ignores = {}
-    ignoresList:SetText(ZonePet_ListIgnores())
+    ZonePet_ignoresList:SetText(ZonePet_ListIgnores())
   end)
 
   local addIgnoreBox = CreateFrame('editbox', nil, ZonePet.panel, 'InputBoxTemplate')
@@ -491,13 +492,13 @@ function ZonePet_addInterfaceOptions()
   end)
   y = y - 40
 
-  ignoresList = ZonePet.panel:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
-  ignoresList:SetJustifyV('TOP')
-  ignoresList:SetJustifyH('LEFT')
-  ignoresList:SetHeight(180)
-  ignoresList:SetWidth(120)
-  ignoresList:SetPoint('TOPLEFT', 400, y)
-  ignoresList:SetText(ZonePet_ListIgnores())
+  ZonePet_ignoresList = ZonePet.panel:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
+  ZonePet_ignoresList:SetJustifyV('TOP')
+  ZonePet_ignoresList:SetJustifyH('LEFT')
+  ZonePet_ignoresList:SetHeight(180)
+  ZonePet_ignoresList:SetWidth(120)
+  ZonePet_ignoresList:SetPoint('TOPLEFT', 400, y)
+  ZonePet_ignoresList:SetText(ZonePet_ListIgnores())
 end
 
 function ZonePet_toggleFav(setting)
@@ -560,7 +561,7 @@ function ZonePet_IgnorePet(name)
     zonePetMiniMap.ignores[#zonePetMiniMap.ignores + 1] = name
   end
 
-  ignoresList:SetText(ZonePet_ListIgnores())
+  ZonePet_ignoresList:SetText(ZonePet_ListIgnores())
 end
 
 function ZonePet_ListIgnores()
