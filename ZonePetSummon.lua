@@ -109,8 +109,8 @@ function ZonePet_summonPet(zoneName)
     speciesName, icon, petType, companionID, tooltip, description,
     isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
-    -- NEVER summon Disgusting Oozeling as it has negative effect
     allowPet = true
+    -- NEVER summon Disgusting Oozeling as it has negative effect
     if petID == nil or petID == 'BattlePet-0-0000122C75EA' or speciesName == 'Disgusting Oozeling' or speciesID == 114 then
       allowPet = false
     end
