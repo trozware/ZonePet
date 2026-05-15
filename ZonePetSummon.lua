@@ -1,7 +1,7 @@
 function ZonePet_shouldSummonSamePet()
   -- existing pet ID already confirmed
   if ZonePet_LockPet == true then
-    if ZonePet_userIsFree() == 'yes' then
+    if ZonePet_userIsFree() == "yes" then
       C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
       ZonePet_checkSummon(ZonePet_LastPetID)
       ZonePet_checkSummonedPet(GetZoneText())
@@ -10,7 +10,7 @@ function ZonePet_shouldSummonSamePet()
   end
 
   -- was it summoned less than 5 minutes ago
-  local now = GetTime()           -- time in seconds
+  local now = GetTime() -- time in seconds
   if now - ZonePet_LastPetChange >= 300 then
     ZonePet_processEvent()
     return
@@ -21,18 +21,33 @@ function ZonePet_shouldSummonSamePet()
   if isFromZone == false then
     ZonePet_processEvent()
     return
-  end 
+  end
 
-  if ZonePet_userIsFree() == 'yes' then
+  if ZonePet_userIsFree() == "yes" then
     C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
     ZonePet_checkSummon(ZonePet_LastPetID)
   end
 end
 
 function ZonePet_petIsFromThisZone(currentPetID)
-  local speciesID, customName, level, xp, maxXp, displayID, isFavorite,
-  name, icon, petType, creatureID, sourceText, description,
-  isWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(currentPetID)
+  local speciesID,
+    customName,
+    level,
+    xp,
+    maxXp,
+    displayID,
+    isFavorite,
+    name,
+    icon,
+    petType,
+    creatureID,
+    sourceText,
+    description,
+    isWild,
+    canBattle,
+    tradable,
+    unique,
+    obtainable = C_PetJournal.GetPetInfoByPetID(currentPetID)
 
   local zoneName = GetZoneText()
   if zoneName == nil or zoneName == "" then
@@ -50,7 +65,7 @@ function ZonePet_summonForZone()
   if zone ~= nil and zone ~= "" then
     return ZonePet_summonPet(zone)
   end
-  return 'no zone'
+  return "no zone"
 end
 
 function ZonePet_summonPreviousPet()
@@ -73,21 +88,21 @@ end
 
 function ZonePet_summonPet(zoneName)
   if InCombatLockdown() == true then
-    return 'in combat'
+    return "in combat"
   end
   if UnitIsDeadOrGhost("player") then
-    return 'dead'
+    return "dead"
   end
 
   if ZonePet_Stealthed == true or IsStealthed() then
     -- if ZonePet_isInPvP() then
-      ZonePet_dismissCurrentPet()
+    ZonePet_dismissCurrentPet()
     -- end
     -- ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFStealth - no pet summoned.")
-    return 'in stealth'
+    return "in stealth"
   end
 
-  if ZonePet_userIsFree() ~= 'yes' then
+  if ZonePet_userIsFree() ~= "yes" then
     return ZonePet_userIsBusyReason()
   end
 
@@ -105,18 +120,33 @@ function ZonePet_summonPet(zoneName)
   local specialPets = {}
 
   for n = 1, numOwned do
-    local petID, speciesID, owned, customName, level, favorite, isRevoked,
-    speciesName, icon, petType, companionID, tooltip, description,
-    isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
+    local petID,
+      speciesID,
+      owned,
+      customName,
+      level,
+      favorite,
+      isRevoked,
+      speciesName,
+      icon,
+      petType,
+      companionID,
+      tooltip,
+      description,
+      isWild,
+      canBattle,
+      isTradeable,
+      isUnique,
+      obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
     allowPet = true
     -- NEVER summon Disgusting Oozeling as it has negative effect
-    if petID == nil or petID == 'BattlePet-0-0000122C75EA' or speciesName == 'Disgusting Oozeling' or speciesID == 114 then
+    if petID == nil or petID == "BattlePet-0-0000122C75EA" or speciesName == "Disgusting Oozeling" or speciesID == 114 then
       allowPet = false
     end
 
     -- faction specific pets
-    if allowPet and (speciesName == 'Gillvanas' or speciesName == 'Finduin' or speciesID == 2777 or speciesID == 2778) then
+    if allowPet and (speciesName == "Gillvanas" or speciesName == "Finduin" or speciesID == 2777 or speciesID == 2778) then
       allowPet = false
     end
 
@@ -135,16 +165,16 @@ function ZonePet_summonPet(zoneName)
 
     validZone = false
     isSpecial = false
-    if tooltip and #tooltip > 0 then 
+    if tooltip and #tooltip > 0 then
       if string.find(tooltip, zoneName) then
         validZone = true
-      elseif string.find(tooltip, 'Trading Card Game') then
+      elseif string.find(tooltip, "Trading Card Game") then
         validZone = true
         isSpecial = true
-      elseif string.find(tooltip, 'Game Shop') then
+      elseif string.find(tooltip, "Game Shop") then
         validZone = true
         isSpecial = true
-      elseif string.find(tooltip, 'Promotion') then
+      elseif string.find(tooltip, "Promotion") then
         validZone = true
         isSpecial = true
       end
@@ -162,9 +192,9 @@ function ZonePet_summonPet(zoneName)
         end
         if isMatch then
           if isSpecial then
-            specialPets[#specialPets + 1] = { name = speciesName, ID = petID }
+            specialPets[#specialPets + 1] = {name = speciesName, ID = petID}
           else
-            validPets[#validPets + 1] = { name = speciesName, ID = petID }
+            validPets[#validPets + 1] = {name = speciesName, ID = petID}
           end
         end
       end
@@ -183,10 +213,9 @@ function ZonePet_summonPet(zoneName)
     specialName = specialPets[specialIndex].name
     special_id = specialPets[specialIndex].ID
 
-    validPets[#validPets + 1] = { name = specialName, ID = special_id }
+    validPets[#validPets + 1] = {name = specialName, ID = special_id}
   end
   -- print("|c0000FF00ZonePet: " .. "|c0000FFFFYou own " .. #validPets .. " valid & special pets from " .. zoneName)
-
 
   if #validPets == 0 then
     -- print('No pets for zone ' .. zoneName)
@@ -232,18 +261,18 @@ function ZonePet_summonPet(zoneName)
     end
   end
 
-  return ''
+  return ""
 end
 
 function ZonePet_summonRandomPet(zoneName, startingPets)
   ZonePet_LastPetChange = GetTime()
 
-  if ZonePet_userIsFree() ~= 'yes' then
+  if ZonePet_userIsFree() ~= "yes" then
     return
   end
 
   local favPetId = ZonePet_pickRandomPet(zonePetMiniMap.favsOnly, startingPets)
-  if favPetId ~= '-1' then
+  if favPetId ~= "-1" then
     pcall(
       function()
         C_PetJournal.SummonPetByGUID(favPetId)
@@ -267,9 +296,24 @@ function ZonePet_pickRandomPet(favsOnly, startingPets)
   local petList = startingPets
 
   for n = 1, numOwned do
-    local petID, speciesID, owned, customName, level, favorite, isRevoked,
-    speciesName, icon, petType, companionID, tooltip, description,
-    isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
+    local petID,
+      speciesID,
+      owned,
+      customName,
+      level,
+      favorite,
+      isRevoked,
+      speciesName,
+      icon,
+      petType,
+      companionID,
+      tooltip,
+      description,
+      isWild,
+      canBattle,
+      isTradeable,
+      isUnique,
+      obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
     if petID and owned then
       if zonePetMiniMap.favsOnly == false or favorite == true then
@@ -280,7 +324,7 @@ function ZonePet_pickRandomPet(favsOnly, startingPets)
           end
         end
         if isMatch then
-          petList[#petList + 1] = { name = speciesName, ID = petID }
+          petList[#petList + 1] = {name = speciesName, ID = petID}
         end
       end
     end
@@ -296,7 +340,7 @@ function ZonePet_pickRandomPet(favsOnly, startingPets)
   end
 
   if #petList == 1 then
-    summonedPetGUID = ''
+    summonedPetGUID = ""
     return petList[1].ID
   end
 
@@ -316,9 +360,24 @@ function ZonePet_addRandomPets(validPets, favsOnly, count)
   local petList = {}
 
   for n = 1, numOwned do
-    local petID, speciesID, owned, customName, level, favorite, isRevoked,
-    speciesName, icon, petType, companionID, tooltip, description,
-    isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
+    local petID,
+      speciesID,
+      owned,
+      customName,
+      level,
+      favorite,
+      isRevoked,
+      speciesName,
+      icon,
+      petType,
+      companionID,
+      tooltip,
+      description,
+      isWild,
+      canBattle,
+      isTradeable,
+      isUnique,
+      obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
     if petID and owned then
       if zonePetMiniMap.favsOnly == false or favorite == true then
@@ -329,7 +388,7 @@ function ZonePet_addRandomPets(validPets, favsOnly, count)
           end
         end
         if isMatch then
-          petList[#petList + 1] = { name = speciesName, ID = petID }
+          petList[#petList + 1] = {name = speciesName, ID = petID}
         end
       end
     end
@@ -354,7 +413,7 @@ function ZonePet_addRandomPets(validPets, favsOnly, count)
 
   for _, pet in ipairs(validPets) do
     if (not hash[pet.ID]) then
-      uniquePets[#uniquePets+1] = pet
+      uniquePets[#uniquePets + 1] = pet
       hash[pet.ID] = true
     end
   end
@@ -368,14 +427,15 @@ function ZonePet_checkSummonedPet(zoneName)
     showChat = false
   end
 
-  local now = GetTime()           -- time in seconds
+  local now = GetTime() -- time in seconds
   if zonePetMiniMap.slowInfo and now - ZonePet_LastChatReport < 180 then
     showChat = false
   end
 
-  C_Timer.After(2,
+  C_Timer.After(
+    2,
     function()
-      if ZonePet_userIsFree() ~= 'yes' then
+      if ZonePet_userIsFree() ~= "yes" then
         return
       end
 
@@ -384,9 +444,24 @@ function ZonePet_checkSummonedPet(zoneName)
       ZonePet_LastPetID = summonedPetGUID
 
       if summonedPetGUID and #summonedPetGUID > 0 then
-        local speciesID, customName, level, xp, maxXp, displayID, isFavorite,
-        name, icon, petType, creatureID, sourceText, description,
-        isWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
+        local speciesID,
+          customName,
+          level,
+          xp,
+          maxXp,
+          displayID,
+          isFavorite,
+          name,
+          icon,
+          petType,
+          creatureID,
+          sourceText,
+          description,
+          isWild,
+          canBattle,
+          tradable,
+          unique,
+          obtainable = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
 
         -- cover summoning random pet from this zone
         local zoneMatches = false
@@ -395,27 +470,36 @@ function ZonePet_checkSummonedPet(zoneName)
         end
 
         if showChat then
-          local favText = ''
+          local favText = ""
           if zonePetMiniMap.favsOnly then
-            favText = 'favorite '
+            favText = "favorite "
           end
-          if zoneMatches == false or zoneName == '' then
-              ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned random " .. favText .. "pet: " .. "|c00FFD100" .. name .. ".")
+          if zoneMatches == false or zoneName == "" then
+            ZonePet_displayMessage(
+              "|c0000FF00ZonePet: " .. "|c0000FFFFSummoned random " .. favText .. "pet: " .. "|c00FFD100" .. name .. "."
+            )
           else
-              ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFSummoned " .. favText .. "|c00FFD100" .. name .. "|c0000FFFF from " .. zoneName .. ".")
+            ZonePet_displayMessage(
+              "|c0000FF00ZonePet: " ..
+                "|c0000FFFFSummoned " .. favText .. "|c00FFD100" .. name .. "|c0000FFFF from " .. zoneName .. "."
+            )
           end
           if description and description ~= "" then
             ZonePet_displayMessage("|c0000FFFF" .. description)
           end
+
           local interaction = ZonePet_interaction(name)
           if interaction and interaction ~= "" then
-            ZonePet_displayMessage("|c0000FFFFTarget |c0000FF00" .. name .. " |c0000FFFFand type |cFFFFFFFF" .. interaction .. " to interact.")
-          else
-            interaction = ZonePet_extraUse(name)
-            if interaction and interaction ~= "" then
-              ZonePet_displayMessage("|c0000FF00" .. name .. " |c0000FFFF" .. interaction)
-            end
+            ZonePet_displayMessage(
+              "|c0000FFFFTarget |c0000FF00" ..
+                name .. " |c0000FFFFand type |cFFFFFFFF" .. interaction .. " to interact."
+            )
           end
+          local extraUse = ZonePet_extraUse(name)
+          if extraUse and extraUse ~= "" then
+            ZonePet_displayMessage("|c0000FF00" .. name .. " |c0000FFFF" .. extraUse)
+          end
+
           ZonePet_LastChatReport = now
         end
 
@@ -438,10 +522,25 @@ function ZonePet_dataForCurrentPet()
 
   local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
   if summonedPetGUID and #summonedPetGUID > 0 then
-    local speciesID, customName, level, xp, maxXp, displayID, isFavorite,
-      name, icon, petType, creatureID, sourceText, description,
-      sWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
-    return { name = name, desc = description, icon = icon }
+    local speciesID,
+      customName,
+      level,
+      xp,
+      maxXp,
+      displayID,
+      isFavorite,
+      name,
+      icon,
+      petType,
+      creatureID,
+      sourceText,
+      description,
+      sWild,
+      canBattle,
+      tradable,
+      unique,
+      obtainable = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
+    return {name = name, desc = description, icon = icon}
   end
   return nil
 end
@@ -454,7 +553,7 @@ function ZonePet_displayInfoForCurrentPet()
   ZonePet_ShowWelcome()
 
   local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
-  if summonedPetGUID and #summonedPetGUID > 0 then
+  if summonedPetGUID and summonedPetGUID > 0 then
     ZonePet_chatDescription(summonedPetGUID)
   else
     msg = "|c0000FF00ZonePet: " .. "|c0000FFFFYou have no pet active right now."
@@ -463,18 +562,35 @@ function ZonePet_displayInfoForCurrentPet()
 end
 
 function ZonePet_chatDescription(summonedPetGUID)
-  local speciesID, customName, level, xp, maxXp, displayID, isFavorite,
-  name, icon, petType, creatureID, sourceText, description,
-  isWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
+  local speciesID,
+    customName,
+    level,
+    xp,
+    maxXp,
+    displayID,
+    isFavorite,
+    name,
+    icon,
+    petType,
+    creatureID,
+    sourceText,
+    description,
+    isWild,
+    canBattle,
+    tradable,
+    unique,
+    obtainable = C_PetJournal.GetPetInfoByPetID(summonedPetGUID)
 
   ZonePet_displayMessage("|c0000FF00ZonePet: " .. name .. ".")
   if description and description ~= "" then
     ZonePet_displayMessage("|c0000FFFF" .. description)
   end
-  
+
   local interaction = ZonePet_interaction(name)
   if interaction and interaction ~= "" then
-    ZonePet_displayMessage("|c0000FFFFTarget |c0000FF00" .. name .. " |c0000FFFFand type |cFFFFFFFF" .. interaction .. " to interact.")
+    ZonePet_displayMessage(
+      "|c0000FFFFTarget |c0000FF00" .. name .. " |c0000FFFFand type |cFFFFFFFF" .. interaction .. " to interact."
+    )
   else
     interaction = ZonePet_extraUse(name)
     if interaction and interaction ~= "" then
@@ -486,7 +602,6 @@ end
 function ZonePet_checkSummon(petID)
   -- This is causing endless streams of GCD usage at places like Rostrum of Transformation
   -- It's used in several places, but I think removing it is the better option
-
   -- C_Timer.After(1,
   --   function()
   --     local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
@@ -507,7 +622,7 @@ function ZonePet_dismissCurrentPet()
   if summonedPetGUID and #summonedPetGUID > 0 then
     C_PetJournal.SummonPetByGUID(summonedPetGUID)
     ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFDismissing pet.")
-    ZonePet_checkSummonedPet('')
+    ZonePet_checkSummonedPet("")
   end
 end
 
@@ -526,16 +641,31 @@ function ZonePet_showDuplicates()
   local dupePets = {}
 
   for n = 1, numOwned do
-    local petID, speciesID, owned, customName, level, favorite, isRevoked,
-    speciesName, icon, petType, companionID, tooltip, description,
-    isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
+    local petID,
+      speciesID,
+      owned,
+      customName,
+      level,
+      favorite,
+      isRevoked,
+      speciesName,
+      icon,
+      petType,
+      companionID,
+      tooltip,
+      description,
+      isWild,
+      canBattle,
+      isTradeable,
+      isUnique,
+      obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
     if allPets[speciesName] ~= nil then
       dupePets[#dupePets + 1] = speciesName
     end
     allPets[speciesName] = petID
   end
-  
+
   local msg
   if #dupePets == 0 then
     msg = "|c0000FF00ZonePet: " .. "|c0000FFFFAll your pets are unique."
@@ -550,7 +680,18 @@ function ZonePet_showDuplicates()
 end
 
 function ZonePet_petIsSpider(petName)
-  local spiderNames = {'spider', 'tarantula', 'broodling', 'smolderweb', 'mechantula', 'swarmer', 'crypt', 'creepling', 'webspinner', 'venomspitter'}
+  local spiderNames = {
+    "spider",
+    "tarantula",
+    "broodling",
+    "smolderweb",
+    "mechantula",
+    "swarmer",
+    "crypt",
+    "creepling",
+    "webspinner",
+    "venomspitter"
+  }
   local exceptions = {"Yu'la"}
 
   for n = 1, #exceptions do
@@ -579,7 +720,7 @@ function ZonePet_isInPvP()
 
   local _, instanceType = IsInInstance()
   -- print('Instance type: ' .. instanceType)
-  if instanceType == 'pvp' or instanceType == 'arena' then
+  if instanceType == "pvp" or instanceType == "arena" then
     ZonePet_IsPvP = true
     return true
   end
@@ -654,34 +795,79 @@ function ZonePet_Tests()
   C_PetJournal.ClearSearchFilter()
 
   local numPets, numOwned = C_PetJournal.GetNumPets()
-  print('numPets: ' .. numPets)
-  print('numOwned: ' .. numOwned)
+  print("numPets: " .. numPets)
+  print("numOwned: " .. numOwned)
 
-  local petID, speciesID, owned, customName, level, favorite, isRevoked,
-  speciesName, icon, petType, companionID, tooltip, description,
-  isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(numPets)
-  print('Last pet:', speciesName, petID, speciesID)
+  local petID,
+    speciesID,
+    owned,
+    customName,
+    level,
+    favorite,
+    isRevoked,
+    speciesName,
+    icon,
+    petType,
+    companionID,
+    tooltip,
+    description,
+    isWild,
+    canBattle,
+    isTradeable,
+    isUnique,
+    obtainable = C_PetJournal.GetPetInfoByIndex(numPets)
+  print("Last pet:", speciesName, petID, speciesID)
 
-  petID, speciesID, owned, customName, level, favorite, isRevoked,
-  speciesName, icon, petType, companionID, tooltip, description,
-  isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(numOwned)
-  print('Last owned pet:', speciesName, petID, speciesID)
+  petID,
+    speciesID,
+    owned,
+    customName,
+    level,
+    favorite,
+    isRevoked,
+    speciesName,
+    icon,
+    petType,
+    companionID,
+    tooltip,
+    description,
+    isWild,
+    canBattle,
+    isTradeable,
+    isUnique,
+    obtainable = C_PetJournal.GetPetInfoByIndex(numOwned)
+  print("Last owned pet:", speciesName, petID, speciesID)
 
   local badIDCount = 0
 
   for n = 1, numPets do
-    local petID, speciesID, owned, customName, level, favorite, isRevoked,
-    speciesName, icon, petType, companionID, tooltip, description,
-    isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
+    local petID,
+      speciesID,
+      owned,
+      customName,
+      level,
+      favorite,
+      isRevoked,
+      speciesName,
+      icon,
+      petType,
+      companionID,
+      tooltip,
+      description,
+      isWild,
+      canBattle,
+      isTradeable,
+      isUnique,
+      obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
-      if speciesName == 'Gillvanas' or speciesName == 'Finduin' or speciesName == 'Disgusting Oozeling' then
-        --   print(tooltip)
-        print(speciesName, speciesID, petID)
-      end
-      -- if not petID then
-      --   badIDCount = badIDCount + 1
-      --   print('no id')
-      -- end
+    if speciesName == "Gillvanas" or speciesName == "Finduin" or speciesName == "Disgusting Oozeling" then
+      --   print(tooltip)
+      print(speciesName, speciesID, petID)
+    end
+    -- if not petID then
+    --   badIDCount = badIDCount + 1
+    --   print('no id')
+    -- end
   end
-  print('Pets with no ID:' .. badIDCount)
+  print("Pets with no ID:" .. badIDCount)
 end

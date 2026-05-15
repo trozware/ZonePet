@@ -1,7 +1,11 @@
 -- use this command in game to get the version number
 -- /run print((select(4, GetBuildInfo())));
 
-ZonePet = {} 
+ZonePet = {}
+
+local ZonePet_EventFrame = CreateFrame("Frame")
+ZonePet_EventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+
 ZonePet_LastPetChange = 0
 ZonePet_LastEventTrigger = 0
 ZonePet_LastError = 0
@@ -27,16 +31,26 @@ function ZonePet_displayMessage(msg)
   end
 end
 
------------------------------------------------------------------
--- MINIMAP BUTTON FUNCTIONS
------------------------------------------------------------------
+ZonePet_EventFrame:SetScript(
+  "OnEvent",
+  function(self, event, ...)
+    -- print(event)
+    if event == "PLAYER_TARGET_CHANGED" then
+      ZonePet_checkForPetTarget()
+    -- work out if current pet is selected
+    -- if so, and current pat has an interaction, do it
+    -- need a setting to turn this off
+    -- also disable in instances
+    end
+  end
+)
 
 function ZonePet:Initialize()
   SLASH_ZONEPET1, SLASH_ZONEPET2 = "/zonepet", "/zp"
   SlashCmdList["ZONEPET"] = ZonepetCommandHandler
 
-	if not zonePetMiniMap then
-		zonePetMiniMap = {
+  if not zonePetMiniMap then
+    zonePetMiniMap = {
       Hidden = false,
       favsOnly = false,
       noSpiders = false,
@@ -44,58 +58,70 @@ function ZonePet:Initialize()
       notInGroup = false,
       hideInfo = false,
       slowInfo = false,
-      ignores = {}
-		}
-	end
+      ignores = {},
+      interactOnSelection = true
+    }
+  end
+
+  if not zonePetMiniMap.interactOnSelection then
+    zonePetMiniMap.interactOnSelection = true
+  end
 
   ZonePet_addInterfaceOptions()
   ZonePet_initMiniMapButton()
 end
 
 function ZonePet_initMiniMapButton()
-  local miniButton = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("ZonePet", {
-    type = "data source",
-    text = "ZonePet",
-    icon = "Interface\\ICONS\\Tracking_WildPet",
-    OnClick = function(self, button)
-      if button == "RightButton" then
-        if IsAltKeyDown() then
-          zonePetMiniMap.Hidden=true
-          zonePetMiniMap.hide = true
-          ZonePet_Icon:Hide("ZonePet")
-          ZonepetCommandHandler('help')
-          ZonePet_TooltipVisible = false
-          if ZonePet_InterfaceMinimapButton then 
-            ZonePet_InterfaceMinimapButton:SetChecked(zonePetMiniMap.Hidden == false)
+  local miniButton =
+    LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject(
+    "ZonePet",
+    {
+      type = "data source",
+      text = "ZonePet",
+      icon = "Interface\\ICONS\\Tracking_WildPet",
+      OnClick = function(self, button)
+        if button == "RightButton" then
+          if IsAltKeyDown() then
+            zonePetMiniMap.Hidden = true
+            zonePetMiniMap.hide = true
+            ZonePet_Icon:Hide("ZonePet")
+            ZonepetCommandHandler("help")
+            ZonePet_TooltipVisible = false
+            if ZonePet_InterfaceMinimapButton then
+              ZonePet_InterfaceMinimapButton:SetChecked(zonePetMiniMap.Hidden == false)
+            end
+          else
+            ZonePet_HaveDismissed = true
+            ZonePet_dismissCurrentPet()
           end
         else
-          ZonePet_HaveDismissed = true
-          ZonePet_dismissCurrentPet()
+          if IsAltKeyDown() then
+            ZonePet_lockCurrentPet()
+            ZonePet_showTooltip(ZonePet_Tooltip)
+          elseif IsShiftKeyDown() then
+            ZonePet_summonPreviousPet()
+          else
+            ZonePet_LockPet = false
+            local noSummonReason = ZonePet_summonForZone()
+            ZonePet_showReasonForNotSummoning(noSummonReason)
+          end
         end
-      else
-        if IsAltKeyDown() then
-          ZonePet_lockCurrentPet()
-          ZonePet_showTooltip(ZonePet_Tooltip)
-        elseif IsShiftKeyDown() then
-          ZonePet_summonPreviousPet()
-        else
-          ZonePet_LockPet = false
-          local noSummonReason = ZonePet_summonForZone()
-          ZonePet_showReasonForNotSummoning(noSummonReason)
+      end,
+      OnTooltipShow = function(tooltip)
+        ZonePet_Tooltip = tooltip
+        if not tooltip or not tooltip.AddLine then
+          return
         end
+        ZonePet_showTooltip(tooltip)
       end
-    end,
-    OnTooltipShow = function(tooltip)
-      ZonePet_Tooltip = tooltip
-      if not tooltip or not tooltip.AddLine then return end
-      ZonePet_showTooltip(tooltip)
-    end,
-  })
+    }
+  )
 
   ZonePet_Icon = LibStub:GetLibrary("LibDBIcon-1.0", true)
   ZonePet_Icon:Register("ZonePet", miniButton, zonePetMiniMap)
 
-  C_Timer.After(0.5,
+  C_Timer.After(
+    0.5,
     function()
       if zonePetMiniMap.Hidden then
         zonePetMiniMap.hide = true
@@ -106,7 +132,9 @@ function ZonePet_initMiniMapButton()
 end
 
 function ZonePet_showTooltip(tooltip)
-  if not tooltip or not tooltip.AddLine then return end
+  if not tooltip or not tooltip.AddLine then
+    return
+  end
 
   local petData = ZonePet_dataForCurrentPet()
 
@@ -128,9 +156,9 @@ function ZonePet_showTooltip(tooltip)
   elseif ZonePet_HaveDismissed then
     tooltip:AddLine(" ")
     local msg = "You have dismissed your pet. No new pet will be summoned until you left-click here or use '/zp new'."
-    tooltip:AddLine(msg , 0, 1, 1, true)
+    tooltip:AddLine(msg, 0, 1, 1, true)
   end
-  
+
   tooltip:AddLine("\nLeft-click to summon a new pet, from this zone if possible.")
 
   if ZonePet_PrevPetID ~= nil then
@@ -153,18 +181,18 @@ function ZonePet_showTooltip(tooltip)
   ZonePet_TooltipVisible = true
 end
 
-function ZonepetCommandHandler(msg) 
+function ZonepetCommandHandler(msg)
   if msg == "mini" then
     if zonePetMiniMap.Hidden == true then
       ZonePet_Icon:Show("ZonePet")
-      zonePetMiniMap.Hidden=false
+      zonePetMiniMap.Hidden = false
       zonePetMiniMap.hide = false
     else
       ZonePet_Icon:Hide("ZonePet")
-      zonePetMiniMap.Hidden=true
+      zonePetMiniMap.Hidden = true
       zonePetMiniMap.hide = true
     end
-    if ZonePet_InterfaceMinimapButton then 
+    if ZonePet_InterfaceMinimapButton then
       ZonePet_InterfaceMinimapButton:SetChecked(zonePetMiniMap.Hidden == false)
     end
   elseif msg == "dismiss" then
@@ -188,7 +216,7 @@ function ZonepetCommandHandler(msg)
     ZonePet_lockCurrentPet()
   elseif msg == "about" then
     ZonePet_displayInfoForCurrentPet()
-  elseif msg == '' or msg == 'help' then
+  elseif msg == "" or msg == "help" then
     ZonePet_displayHelp()
   else
     ZonePet_searchForPet(msg)
@@ -196,9 +224,9 @@ function ZonepetCommandHandler(msg)
 end
 
 function ZonePet_showReasonForNotSummoning(reason)
-  if reason ~= '' then
+  if reason ~= "" then
     ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFNo pet summoned because you are " .. reason .. ".")
-    ZonePet_PreviousMessage = ''
+    ZonePet_PreviousMessage = ""
   end
 end
 
@@ -231,61 +259,67 @@ function ZonePet_addInterfaceOptions()
   category.ID = ZonePet.panel.name
   Settings.RegisterAddOnCategory(category)
 
-  local Title = ZonePet.panel:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
-  Title:SetJustifyV('TOP')
-  Title:SetJustifyH('LEFT')
-  Title:SetPoint('TOPLEFT', 16, y)
-  local v = C_AddOns.GetAddOnMetadata("ZonePet", "Version") 
-  Title:SetText('ZonePet v' .. v)
+  local Title = ZonePet.panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+  Title:SetJustifyV("TOP")
+  Title:SetJustifyH("LEFT")
+  Title:SetPoint("TOPLEFT", 16, y)
+  local v = C_AddOns.GetAddOnMetadata("ZonePet", "Version")
+  Title:SetText("ZonePet v" .. v)
   y = y - 44
 
   local btn1 = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
-	btn1:SetSize(26,26)
-	btn1:SetHitRectInsets(-2,-160,-2,-2)
-	btn1.text:SetText('  Show Minimap button')
-	btn1.text:SetFontObject("GameFontNormal")
-  btn1:SetPoint('TOPLEFT', 40, y)
+  btn1:SetSize(26, 26)
+  btn1:SetHitRectInsets(-2, -160, -2, -2)
+  btn1.text:SetText("  Show Minimap button")
+  btn1.text:SetFontObject("GameFontNormal")
+  btn1:SetPoint("TOPLEFT", 40, y)
   btn1:SetChecked(zonePetMiniMap.Hidden == false)
-  btn1:SetScript("OnClick",function() 
-    local isChecked = btn1:GetChecked()
-    if isChecked then
-      ZonePet_Icon:Show("ZonePet")
-      zonePetMiniMap.hide = false
-      zonePetMiniMap.Hidden=false
-    else
-      ZonePet_Icon:Hide("ZonePet")
-      zonePetMiniMap.hide = true
-      zonePetMiniMap.Hidden=true
+  btn1:SetScript(
+    "OnClick",
+    function()
+      local isChecked = btn1:GetChecked()
+      if isChecked then
+        ZonePet_Icon:Show("ZonePet")
+        zonePetMiniMap.hide = false
+        zonePetMiniMap.Hidden = false
+      else
+        ZonePet_Icon:Hide("ZonePet")
+        zonePetMiniMap.hide = true
+        zonePetMiniMap.Hidden = true
+      end
     end
-  end)
+  )
   ZonePet_InterfaceMinimapButton = btn1
   y = y - 40
 
   local btnFT = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
   local btnSlow = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
 
-	btnFT:SetSize(26,26)
-	btnFT:SetHitRectInsets(-2,-200,-2,-2)
-	btnFT.text:SetText('  Show pet info in Chat')
-	btnFT.text:SetFontObject("GameFontNormal")
-  btnFT:SetPoint('TOPLEFT', 40, y)
+  btnFT:SetSize(26, 26)
+  btnFT:SetHitRectInsets(-2, -200, -2, -2)
+  btnFT.text:SetText("  Show pet info in Chat")
+  btnFT.text:SetFontObject("GameFontNormal")
+  btnFT:SetPoint("TOPLEFT", 40, y)
   btnFT:SetChecked(not zonePetMiniMap.hideInfo)
-  btnFT:SetScript("OnClick",function() 
-    local isChecked = btnFT:GetChecked()
-    zonePetMiniMap.hideInfo = not isChecked
-    btnSlow:SetEnabled(not zonePetMiniMap.hideInfo)
-    if zonePetMiniMap.hideInfo then
-      btnSlow.text:SetFontObject("GameFontDisable")
-    else
-      btnSlow.text:SetFontObject("GameFontNormal")
+  btnFT:SetScript(
+    "OnClick",
+    function()
+      local isChecked = btnFT:GetChecked()
+      zonePetMiniMap.hideInfo = not isChecked
+      btnSlow:SetEnabled(not zonePetMiniMap.hideInfo)
+      if zonePetMiniMap.hideInfo then
+        btnSlow.text:SetFontObject("GameFontDisable")
+      else
+        btnSlow.text:SetFontObject("GameFontNormal")
+      end
     end
-  end)
+  )
   y = y - 40
 
-	btnSlow:SetSize(26,26)
-	btnSlow:SetHitRectInsets(-2,-200,-2,-2)
-	btnSlow.text:SetText('  Not more than once every 3 minutes')
-  btnSlow:SetPoint('TOPLEFT', 80, y)
+  btnSlow:SetSize(26, 26)
+  btnSlow:SetHitRectInsets(-2, -200, -2, -2)
+  btnSlow.text:SetText("  Not more than once every 3 minutes")
+  btnSlow:SetPoint("TOPLEFT", 80, y)
   btnSlow:SetChecked(zonePetMiniMap.slowInfo)
   btnSlow:SetEnabled(not zonePetMiniMap.hideInfo)
   if zonePetMiniMap.hideInfo then
@@ -293,211 +327,269 @@ function ZonePet_addInterfaceOptions()
   else
     btnSlow.text:SetFontObject("GameFontNormal")
   end
-  btnSlow:SetScript("OnClick",function() 
-    local isChecked = btnSlow:GetChecked()
-    zonePetMiniMap.slowInfo = isChecked
-    ZonePet_LastChatReport = 0
-  end)
+  btnSlow:SetScript(
+    "OnClick",
+    function()
+      local isChecked = btnSlow:GetChecked()
+      zonePetMiniMap.slowInfo = isChecked
+      ZonePet_LastChatReport = 0
+    end
+  )
   y = y - 40
 
   local btn2 = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
-	btn2:SetSize(26,26)
-	btn2:SetHitRectInsets(-2,-200,-2,-2)
-	btn2.text:SetText('  Select from Favorites only')
-	btn2.text:SetFontObject("GameFontNormal")
-  btn2:SetPoint('TOPLEFT', 40, y)
+  btn2:SetSize(26, 26)
+  btn2:SetHitRectInsets(-2, -200, -2, -2)
+  btn2.text:SetText("  Select from Favorites only")
+  btn2.text:SetFontObject("GameFontNormal")
+  btn2:SetPoint("TOPLEFT", 40, y)
   btn2:SetChecked(zonePetMiniMap.favsOnly)
-  btn2:SetScript("OnClick",function() 
-    local isChecked = btn2:GetChecked()
-    zonePetMiniMap.favsOnly = isChecked
-    ZonePet_summonForZone()
-  end)
+  btn2:SetScript(
+    "OnClick",
+    function()
+      local isChecked = btn2:GetChecked()
+      zonePetMiniMap.favsOnly = isChecked
+      ZonePet_summonForZone()
+    end
+  )
+  y = y - 40
+
+  local interactBtn = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
+  interactBtn:SetSize(26, 26)
+  interactBtn:SetHitRectInsets(-2, -200, -2, -2)
+  interactBtn.text:SetText("  Interact with pet when selected")
+  interactBtn.text:SetFontObject("GameFontNormal")
+  interactBtn:SetPoint("TOPLEFT", 40, y)
+  interactBtn:SetChecked(zonePetMiniMap.interactOnSelection)
+  interactBtn:SetScript(
+    "OnClick",
+    function()
+      local isChecked = interactBtn:GetChecked()
+      zonePetMiniMap.interactOnSelection = isChecked
+    end
+  )
   y = y - 40
 
   -- local favButton = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
-	-- favButton:SetSize(160,26)
-	-- favButton:SetText('Set All as Favorite')
+  -- favButton:SetSize(160,26)
+  -- favButton:SetText('Set All as Favorite')
   -- favButton:SetPoint('TOPLEFT', 40, y)
-  -- favButton:SetScript("OnClick",function() 
+  -- favButton:SetScript("OnClick",function()
   --   ZonePet_toggleFav(true)
   -- end)
 
   -- local unfavButton = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
-	-- unfavButton:SetSize(160,26)
-	-- unfavButton:SetText('Set None as Favorite')
+  -- unfavButton:SetSize(160,26)
+  -- unfavButton:SetText('Set None as Favorite')
   -- unfavButton:SetPoint('TOPLEFT', 220, y)
-  -- unfavButton:SetScript("OnClick",function() 
+  -- unfavButton:SetScript("OnClick",function()
   --   ZonePet_toggleFav(false)
   -- end)
   -- y = y - 40
 
   local btn3 = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
-	btn3:SetSize(26,26)
-	btn3:SetHitRectInsets(-2,-100,-2,-2)
-	btn3.text:SetText('  NO SPIDERS!')
-	btn3.text:SetFontObject("GameFontNormal")
-  btn3:SetPoint('TOPLEFT', 40, y)
+  btn3:SetSize(26, 26)
+  btn3:SetHitRectInsets(-2, -100, -2, -2)
+  btn3.text:SetText("  NO SPIDERS!")
+  btn3.text:SetFontObject("GameFontNormal")
+  btn3:SetPoint("TOPLEFT", 40, y)
   btn3:SetChecked(zonePetMiniMap.noSpiders)
-  btn3:SetScript("OnClick",function() 
-    local isChecked = btn3:GetChecked()
-    zonePetMiniMap.noSpiders = isChecked
-    ZonePet_summonForZone()
-  end)
+  btn3:SetScript(
+    "OnClick",
+    function()
+      local isChecked = btn3:GetChecked()
+      zonePetMiniMap.noSpiders = isChecked
+      ZonePet_summonForZone()
+    end
+  )
   y = y - 40
 
   local btn9 = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
-	btn9:SetSize(26,26)
-  btn9:SetHitRectInsets(-2,-200,-2,-2)
-	btn9.text:SetText('  Do not summon pets while in PvP')
+  btn9:SetSize(26, 26)
+  btn9:SetHitRectInsets(-2, -200, -2, -2)
+  btn9.text:SetText("  Do not summon pets while in PvP")
   btn9.text:SetFontObject("GameFontNormal")
-  btn9:SetPoint('TOPLEFT', 40, y)
+  btn9:SetPoint("TOPLEFT", 40, y)
   btn9:SetChecked(zonePetMiniMap.notInPvP)
-  btn9.tooltipTitle = 'List Duplicates'
-  btn9.tooltipBody = 'Your duplicate pets will be listed in the chat.'
-  btn9:SetScript("OnClick",function() 
-    local isChecked = btn9:GetChecked()
-    ZonePet_changePvPOption(isChecked)
-  end)
+  btn9.tooltipTitle = "List Duplicates"
+  btn9.tooltipBody = "Your duplicate pets will be listed in the chat."
+  btn9:SetScript(
+    "OnClick",
+    function()
+      local isChecked = btn9:GetChecked()
+      ZonePet_changePvPOption(isChecked)
+    end
+  )
   y = y - 40
 
   local btn10 = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
-	btn10:SetSize(26,26)
-  btn10:SetHitRectInsets(-2,-200,-2,-2)
-	btn10.text:SetText('  Do not summon pets while in a group or raid')
+  btn10:SetSize(26, 26)
+  btn10:SetHitRectInsets(-2, -200, -2, -2)
+  btn10.text:SetText("  Do not summon pets while in a group or raid")
   btn10.text:SetFontObject("GameFontNormal")
-  btn10:SetPoint('TOPLEFT', 40, y)
+  btn10:SetPoint("TOPLEFT", 40, y)
   btn10:SetChecked(zonePetMiniMap.notInGroup)
-  btn10.tooltipTitle = 'List Duplicates'
-  btn10.tooltipBody = 'Your duplicate pets will be listed in the chat.'
-  btn10:SetScript("OnClick",function() 
-    local isChecked = btn10:GetChecked()
-    ZonePet_changeGroupOption(isChecked)
-  end)
+  btn10.tooltipTitle = "List Duplicates"
+  btn10.tooltipBody = "Your duplicate pets will be listed in the chat."
+  btn10:SetScript(
+    "OnClick",
+    function()
+      local isChecked = btn10:GetChecked()
+      ZonePet_changeGroupOption(isChecked)
+    end
+  )
   y = y - 40
 
   local btn4 = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
-	btn4:SetSize(160,26)
-	btn4:SetText('New Pet')
-  btn4:SetPoint('TOPLEFT', 40, y)
-  btn4:SetScript("OnClick",function() 
-    ZonePet_summonForZone()
-  end)
+  btn4:SetSize(160, 26)
+  btn4:SetText("New Pet")
+  btn4:SetPoint("TOPLEFT", 40, y)
+  btn4:SetScript(
+    "OnClick",
+    function()
+      ZonePet_summonForZone()
+    end
+  )
 
   local btn7 = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
-	btn7:SetSize(160,26)
-	btn7:SetText('Previous Pet')
-  btn7:SetPoint('TOPLEFT', 220, y)
-  btn7:SetScript("OnClick",function() 
-    ZonePet_summonPreviousPet()
-  end)
+  btn7:SetSize(160, 26)
+  btn7:SetText("Previous Pet")
+  btn7:SetPoint("TOPLEFT", 220, y)
+  btn7:SetScript(
+    "OnClick",
+    function()
+      ZonePet_summonPreviousPet()
+    end
+  )
 
   local btn5 = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
-	btn5:SetSize(160,26)
-	btn5:SetText('Dismiss Pet')
-  btn5:SetPoint('TOPLEFT', 400, y)
-  btn5:SetScript("OnClick",function() 
-    ZonePet_HaveDismissed = true
-    ZonePet_dismissCurrentPet()
-  end)
+  btn5:SetSize(160, 26)
+  btn5:SetText("Dismiss Pet")
+  btn5:SetPoint("TOPLEFT", 400, y)
+  btn5:SetScript(
+    "OnClick",
+    function()
+      ZonePet_HaveDismissed = true
+      ZonePet_dismissCurrentPet()
+    end
+  )
   y = y - 40
 
   local btn6 = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
-	btn6:SetSize(26,26)
-	btn6:SetHitRectInsets(-2,-160,-2,-2)
-	btn6.text:SetText('  Lock in current pet')
-	btn6.text:SetFontObject("GameFontNormal")
-  btn6:SetPoint('TOPLEFT', 40, y)
+  btn6:SetSize(26, 26)
+  btn6:SetHitRectInsets(-2, -160, -2, -2)
+  btn6.text:SetText("  Lock in current pet")
+  btn6.text:SetFontObject("GameFontNormal")
+  btn6:SetPoint("TOPLEFT", 40, y)
   btn6:SetChecked(ZonePet_LockPet)
-  btn6:SetScript("OnClick",function() 
-    local isChecked = btn6:GetChecked()
-    if isChecked then
-      ZonePet_lockCurrentPet()
-      ZonePet_showTooltip(ZonePet_Tooltip)
-    else
-      ZonePet_LockPet = false
-      ZonePet_summonForZone()
+  btn6:SetScript(
+    "OnClick",
+    function()
+      local isChecked = btn6:GetChecked()
+      if isChecked then
+        ZonePet_lockCurrentPet()
+        ZonePet_showTooltip(ZonePet_Tooltip)
+      else
+        ZonePet_LockPet = false
+        ZonePet_summonForZone()
+      end
     end
-  end)
+  )
   y = y - 40
 
-  local searchTitle = ZonePet.panel:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
-  searchTitle:SetJustifyV('TOP')
-  searchTitle:SetJustifyH('LEFT')
-  searchTitle:SetPoint('TOPLEFT', 40, y-6)
-  searchTitle:SetText('Search for:')
+  local searchTitle = ZonePet.panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+  searchTitle:SetJustifyV("TOP")
+  searchTitle:SetJustifyH("LEFT")
+  searchTitle:SetPoint("TOPLEFT", 40, y - 6)
+  searchTitle:SetText("Search for:")
 
-  local searchBox = CreateFrame('editbox', nil, ZonePet.panel, 'InputBoxTemplate')
-  searchBox:SetPoint('TOPLEFT', 120, y)
+  local searchBox = CreateFrame("editbox", nil, ZonePet.panel, "InputBoxTemplate")
+  searchBox:SetPoint("TOPLEFT", 120, y)
   searchBox:SetHeight(20)
   searchBox:SetWidth(140)
-  searchBox:SetText('')
+  searchBox:SetText("")
   searchBox:SetAutoFocus(false)
   searchBox:ClearFocus()
-  searchBox:SetScript('OnEnterPressed', function(self)
-    self:SetAutoFocus(false) -- Clear focus when enter is pressed because ketho said so
-    self:ClearFocus()
-    ZonePet_searchForPet(self:GetText())
-    btn6:SetChecked(true)
-  end)
+  searchBox:SetScript(
+    "OnEnterPressed",
+    function(self)
+      self:SetAutoFocus(false) -- Clear focus when enter is pressed because ketho said so
+      self:ClearFocus()
+      ZonePet_searchForPet(self:GetText())
+      btn6:SetChecked(true)
+    end
+  )
   y = y - 40
 
   local btn9 = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
-	btn9:SetSize(160,26)
-	btn9:SetText('Show Slash Commands')
-  btn9:SetPoint('TOPLEFT', 40, y)
-  btn9:SetScript("OnClick",function() 
-    ZonePet_displayHelp()
-  end)
+  btn9:SetSize(160, 26)
+  btn9:SetText("Show Slash Commands")
+  btn9:SetPoint("TOPLEFT", 40, y)
+  btn9:SetScript(
+    "OnClick",
+    function()
+      ZonePet_displayHelp()
+    end
+  )
 
   local btn8 = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
-	btn8:SetSize(160,26)
-	btn8:SetText('List Duplicates in Chat')
-  btn8:SetPoint('TOPLEFT', 220, y)
-  btn8.tooltipTitle = 'List Duplicates'
-  btn8.tooltipBody = 'Your duplicate pets will be listed in the chat.'
-  btn8:SetScript("OnClick",function() 
-    ZonePet_showDuplicates()
-  end)
+  btn8:SetSize(160, 26)
+  btn8:SetText("List Duplicates in Chat")
+  btn8:SetPoint("TOPLEFT", 220, y)
+  btn8.tooltipTitle = "List Duplicates"
+  btn8.tooltipBody = "Your duplicate pets will be listed in the chat."
+  btn8:SetScript(
+    "OnClick",
+    function()
+      ZonePet_showDuplicates()
+    end
+  )
 
   y = -60
-  local addIgnoreTitle = ZonePet.panel:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
-  addIgnoreTitle:SetJustifyV('TOP')
-  addIgnoreTitle:SetJustifyH('LEFT')
-  addIgnoreTitle:SetPoint('TOPLEFT', 300, y-6)
-  addIgnoreTitle:SetText('Toggle Ignore:')
+  local addIgnoreTitle = ZonePet.panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+  addIgnoreTitle:SetJustifyV("TOP")
+  addIgnoreTitle:SetJustifyH("LEFT")
+  addIgnoreTitle:SetPoint("TOPLEFT", 300, y - 6)
+  addIgnoreTitle:SetText("Toggle Ignore:")
 
   local clearIgnoresBtn = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
-	clearIgnoresBtn:SetSize(100,26)
-	clearIgnoresBtn:SetText('Clear Ignores')
-  clearIgnoresBtn:SetPoint('TOPLEFT', 510, y)
-  clearIgnoresBtn.tooltipTitle = 'Clear your ignore list.'
-  clearIgnoresBtn.tooltipBody = 'All the names in your ignore list will be deleted.'
-  clearIgnoresBtn:SetScript("OnClick",function() 
-    zonePetMiniMap.ignores = {}
-    ZonePet_ignoresList:SetText(ZonePet_ListIgnores())
-  end)
+  clearIgnoresBtn:SetSize(100, 26)
+  clearIgnoresBtn:SetText("Clear Ignores")
+  clearIgnoresBtn:SetPoint("TOPLEFT", 510, y)
+  clearIgnoresBtn.tooltipTitle = "Clear your ignore list."
+  clearIgnoresBtn.tooltipBody = "All the names in your ignore list will be deleted."
+  clearIgnoresBtn:SetScript(
+    "OnClick",
+    function()
+      zonePetMiniMap.ignores = {}
+      ZonePet_ignoresList:SetText(ZonePet_ListIgnores())
+    end
+  )
 
-  local addIgnoreBox = CreateFrame('editbox', nil, ZonePet.panel, 'InputBoxTemplate')
-  addIgnoreBox:SetPoint('TOPLEFT', 400, y)
+  local addIgnoreBox = CreateFrame("editbox", nil, ZonePet.panel, "InputBoxTemplate")
+  addIgnoreBox:SetPoint("TOPLEFT", 400, y)
   addIgnoreBox:SetHeight(20)
   addIgnoreBox:SetWidth(100)
-  addIgnoreBox:SetText('')
+  addIgnoreBox:SetText("")
   addIgnoreBox:SetAutoFocus(false)
   addIgnoreBox:ClearFocus()
-  addIgnoreBox:SetScript('OnEnterPressed', function(self)
-    self:SetAutoFocus(false) -- Clear focus when enter is pressed because ketho said so
-    self:ClearFocus()
-    ZonePet_IgnorePet(self:GetText())
-    self:SetText('')
-  end)
+  addIgnoreBox:SetScript(
+    "OnEnterPressed",
+    function(self)
+      self:SetAutoFocus(false) -- Clear focus when enter is pressed because ketho said so
+      self:ClearFocus()
+      ZonePet_IgnorePet(self:GetText())
+      self:SetText("")
+    end
+  )
   y = y - 40
 
-  ZonePet_ignoresList = ZonePet.panel:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
-  ZonePet_ignoresList:SetJustifyV('TOP')
-  ZonePet_ignoresList:SetJustifyH('LEFT')
+  ZonePet_ignoresList = ZonePet.panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+  ZonePet_ignoresList:SetJustifyV("TOP")
+  ZonePet_ignoresList:SetJustifyH("LEFT")
   ZonePet_ignoresList:SetHeight(180)
   ZonePet_ignoresList:SetWidth(120)
-  ZonePet_ignoresList:SetPoint('TOPLEFT', 400, y)
+  ZonePet_ignoresList:SetPoint("TOPLEFT", 400, y)
   ZonePet_ignoresList:SetText(ZonePet_ListIgnores())
 end
 
@@ -505,23 +597,20 @@ function ZonePet_toggleFav(setting)
   -- C_PetJournal.SetAllPetTypesChecked(true)
   -- C_PetJournal.SetAllPetSourcesChecked(true)
   -- C_PetJournal.ClearSearchFilter()
-
   -- local numPets, numOwned = C_PetJournal.GetNumPets()
-
   -- for n = 1, numOwned do
   --   local petID, speciesID, owned, customName, level, favorite, isRevoked,
   --   speciesName, icon, petType, companionID, tooltip, description,
   --   isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
-
   --   -- if setting == favorite then
-  --     print('Setting ' .. speciesName) 
+  --     print('Setting ' .. speciesName)
   --     if setting == true then
   --       C_PetJournal.SetFavorite(petID, 1)
   --     else
   --       C_PetJournal.SetFavorite(petID, 0)
   --     end
-  --   -- else 
-  --   --   print(speciesName .. ' already set') 
+  --   -- else
+  --   --   print(speciesName .. ' already set')
   --   -- end
   -- end
 end
@@ -535,13 +624,12 @@ function ZonePet_IgnorePet(name)
   if not zonePetMiniMap.ignores then
     zonePetMiniMap.ignores = {}
   end
-  
 
   if #zonePetMiniMap.ignores >= 14 then
     ZonePet_displayMessage("|c0000FF00ZonePet |c0000FFFFYou can only add 14 names to the ignore list.")
     return
   end
-  
+
   local haveRemoved = false
   local afterRemove = {}
   local testName = string.lower(name)
@@ -567,7 +655,7 @@ end
 function ZonePet_ListIgnores()
   if not zonePetMiniMap.ignores then
     zonePetMiniMap.ignores = {}
-    return 'Type a name or partial name above to ignore any pet whose name contains that text (case-insensitive).\n\nEnter the same text again to remove it from the list.'
+    return "Type a name or partial name above to ignore any pet whose name contains that text (case-insensitive).\n\nEnter the same text again to remove it from the list."
   end
 
   -- trim empties or shorts
@@ -579,15 +667,14 @@ function ZonePet_ListIgnores()
   end
   zonePetMiniMap.ignores = afterRemove
 
-  local ignoreText = ''
+  local ignoreText = ""
   for n = 1, #zonePetMiniMap.ignores do
-    ignoreText = ignoreText .. zonePetMiniMap.ignores[n] .. '\n'
+    ignoreText = ignoreText .. zonePetMiniMap.ignores[n] .. "\n"
   end
   ignoreText = ignoreText:sub(1, -2)
 
   if #ignoreText == 0 then
-    return 'Type a name or partial name above to ignore any pet whose name contains that text (case-insensitive).\n\nEnter the same text again to remove it from the list.'
+    return "Type a name or partial name above to ignore any pet whose name contains that text (case-insensitive).\n\nEnter the same text again to remove it from the list."
   end
-  return ignoreText 
+  return ignoreText
 end
-
