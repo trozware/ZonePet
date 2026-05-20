@@ -3,9 +3,6 @@
 
 ZonePet = {}
 
-local ZonePet_EventFrame = CreateFrame("Frame")
-ZonePet_EventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-
 ZonePet_LastPetChange = 0
 ZonePet_LastEventTrigger = 0
 ZonePet_LastError = 0
@@ -30,20 +27,6 @@ function ZonePet_displayMessage(msg)
     ChatFrame1:AddMessage(msg)
   end
 end
-
-ZonePet_EventFrame:SetScript(
-  "OnEvent",
-  function(self, event, ...)
-    -- print(event)
-    if event == "PLAYER_TARGET_CHANGED" then
-      ZonePet_checkForPetTarget()
-    -- work out if current pet is selected
-    -- if so, and current pat has an interaction, do it
-    -- need a setting to turn this off
-    -- also disable in instances
-    end
-  end
-)
 
 function ZonePet:Initialize()
   SLASH_ZONEPET1, SLASH_ZONEPET2 = "/zonepet", "/zp"

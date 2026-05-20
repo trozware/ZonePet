@@ -490,10 +490,17 @@ function ZonePet_checkSummonedPet(zoneName)
 
           local interaction = ZonePet_interaction(name)
           if interaction and interaction ~= "" then
-            ZonePet_displayMessage(
-              "|c0000FFFFTarget |c0000FF00" ..
-                name .. " |c0000FFFFand type |cFFFFFFFF" .. interaction .. " to interact."
-            )
+            if zonePetMiniMap.interactOnSelection then
+              ZonePet_displayMessage(
+                "|c0000FFFFTarget |c0000FF00" ..
+                  name .. " |c0000FFFFand type |cFFFFFFFF" .. interaction .. ", or click on the pet to interact."
+              )
+            else
+              ZonePet_displayMessage(
+                "|c0000FFFFTarget |c0000FF00" ..
+                  name .. " |c0000FFFFand type |cFFFFFFFF" .. interaction .. " to interact."
+              )
+            end
           end
           local extraUse = ZonePet_extraUse(name)
           if extraUse and extraUse ~= "" then

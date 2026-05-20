@@ -30,7 +30,7 @@ Type '/zp' in the Chat window or click "Show Slash Commands" in the AddOns panel
 
 To ignore specific pets, go to Game Menu > Interface > AddOns > ZonePet. Type a name or partial name into the ignore field and press Return/Enter to add it to the list. If the entry is already in the list, it will be removed, or you can click the button to clear the entire list. This will block any pets with names containing the entered text, case does not matter. E.g. entering "rat" will block all pet names that include the text "rat" which covers "Fjord Rat", "Rat Snake" and "Creepy Crate" as well as many others.
 
-NEW: If you have an active pet with some interaction, like Daisy the sloth, click on the pat to perform that action. This will not happen in instances and can be turned off in Game Menu > Interface > AddOns > ZonePet.
+NEW: If you have an active pet with some interaction, like Daisy the sloth, click on the pet to perform that action. This will not happen in instances and can be turned off in Game Menu > Interface > AddOns > ZonePet.
 
 ### MiniMap button
 
@@ -65,6 +65,7 @@ Mouse over the MiniMap button to see details about your currently summoned pet (
 
 ### Version History
 
+- v 2.8.1: Fix for locked pets being replaced.
 - v 2.8.0: Refreshed list of pet interactions. Select interactive pet to do action.
 - v 2.7.2: Updated for 12.0.5.
 - v 2.7.1: Updated for 12.0.1.

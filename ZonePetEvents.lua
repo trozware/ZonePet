@@ -10,8 +10,10 @@ ZonePet_EventFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 ZonePet_EventFrame:RegisterEvent("PVP_TIMER_UPDATE")
 ZonePet_EventFrame:RegisterEvent("WAR_MODE_STATUS_UPDATE")
 ZonePet_EventFrame:RegisterEvent("UNIT_FLAGS")
+ZonePet_EventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 
-ZonePet_EventFrame:SetScript("OnEvent",
+ZonePet_EventFrame:SetScript(
+  "OnEvent",
   function(self, event, ...)
     -- print(event)
     if event == "VARIABLES_LOADED" then
@@ -20,29 +22,31 @@ ZonePet_EventFrame:SetScript("OnEvent",
       ZonePet_Stealthed = IsStealthed()
       if ZonePet_isInPvP() == true then
         ZonePet_dismissCurrentPet()
-      elseif ZonePet_Stealthed == false then      
+      elseif ZonePet_Stealthed == false then
         ZonePet_processEvent()
       end
     elseif event == "PLAYER_LOGIN" then
       -- data not ready immediately but force update in 5 seconds
       ZonePet_ShowWelcome()
-      C_Timer.After(5,
+      C_Timer.After(
+        5,
         function()
           ZonePet_LastPetChange = 0
           ZonePet_processEvent()
         end
       )
     elseif event == "PLAYER_MOUNT_DISPLAY_CHANGED" or event == "UPDATE_SHAPESHIFT_FORM" then
-      C_Timer.After(3,
-          function()
+      C_Timer.After(
+        3,
+        function()
           ZonePet_processMountEvent()
-          end
+        end
       )
     elseif event == "UNIT_SPELLCAST_CHANNEL_START" then
       ZonePet_IsChannelling = true
     elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" then
       ZonePet_IsChannelling = false
-    elseif event == "PVP_TIMER_UPDATE" or event == 'WAR_MODE_STATUS_UPDATE' or event == 'UNIT_FLAGS' then
+    elseif event == "PVP_TIMER_UPDATE" or event == "WAR_MODE_STATUS_UPDATE" or event == "UNIT_FLAGS" then
       if zonePetMiniMap.notInPvP == true then
         local prevPvP = ZonePet_IsPvP
         if ZonePet_isInPvP() == true and prevPvP == false then
@@ -51,18 +55,25 @@ ZonePet_EventFrame:SetScript("OnEvent",
           ZonePet_summonForZone()
         end
       end
+    elseif event == "PLAYER_TARGET_CHANGED" then
+      -- work out if current pet is selected
+      -- if so, and current pet has an interaction, do it
+      -- need a setting to turn this off
+      -- also disable in instances
+      ZonePet_checkForPetTarget()
     else
       ZonePet_processEvent()
-    end  
+    end
   end
 )
 
 function ZonePet_processEvent()
   local shouldProcess = ZonePet_shouldProcessEvent()
-  if shouldProcess == 'no' then
+  if shouldProcess == "no" then
     return
-  elseif shouldProcess == 'delay' then
-    C_Timer.After(5,
+  elseif shouldProcess == "delay" then
+    C_Timer.After(
+      5,
       function()
         ZonePet_processEvent()
       end
@@ -70,7 +81,7 @@ function ZonePet_processEvent()
     return
   end
 
-  local now = GetTime()           -- time in seconds
+  local now = GetTime() -- time in seconds
   if now - ZonePet_LastEventTrigger < 5 then
     return
   end
@@ -92,14 +103,15 @@ function ZonePet_processEvent()
     ZonePet_LockPet = false
     ZonePet_summonForZone()
   end
-end 
+end
 
 function ZonePet_processMountEvent()
   local shouldProcess = ZonePet_shouldProcessEvent()
-  if shouldProcess == 'no' then
+  if shouldProcess == "no" then
     return
-  elseif shouldProcess == 'delay' then
-      C_Timer.After(5,
+  elseif shouldProcess == "delay" then
+    C_Timer.After(
+      5,
       function()
         ZonePet_processMountEvent()
       end
@@ -123,13 +135,14 @@ function ZonePet_processMountEvent()
 end
 
 function ZonePet_ShowWelcome()
-  local v = C_AddOns.GetAddOnMetadata("ZonePet", "Version") 
-  ZonePet_displayMessage("|c0000FF00Welcome to ZonePet v" .. v .. ": " .. "|c0000FFFFType |c00FFD100/zp |c0000FFFFfor help.")
+  local v = C_AddOns.GetAddOnMetadata("ZonePet", "Version")
+  ZonePet_displayMessage(
+    "|c0000FF00Welcome to ZonePet v" .. v .. ": " .. "|c0000FFFFType |c00FFD100/zp |c0000FFFFfor help."
+  )
 end
 
 function ZonePet_shouldProcessEvent()
-  if ZonePet_HaveDismissed == true then  
-  -- or ZonePet_LockPet == true then
+  if ZonePet_HaveDismissed == true or ZonePet_LockPet == true then
     return "no"
   end
 
@@ -144,12 +157,12 @@ end
 function ZonePet_userIsFree()
   if zonePetMiniMap.notInPvP == true and ZonePet_isInPvP() == true then
     ZonePet_dismissCurrentPet()
-    return 'no'
+    return "no"
   end
 
   if zonePetMiniMap.notInGroup == true and ZonePet_isGrouped() == true then
     ZonePet_dismissCurrentPet()
-    return 'no'
+    return "no"
   end
 
   local spellName, _, _, _, _, _, _, _, _, _ = UnitCastingInfo("player")
@@ -159,15 +172,16 @@ function ZonePet_userIsFree()
   local isStealthed = IsStealthed() or ZonePet_Stealthed
   local lootWindowCount = GetNumLootItems()
 
-  if inCombat == true or isDead == true or spellName ~= nil or channelName ~= nil or 
-    ZonePet_IsChannelling == true or isStealthed == true or lootWindowCount > 0 then
-      return "delay"
+  if
+    inCombat == true or isDead == true or spellName ~= nil or channelName ~= nil or ZonePet_IsChannelling == true or
+      isStealthed == true or
+      lootWindowCount > 0
+   then
+    return "delay"
   end
 
-  if IsFlying() == true or 
-    UnitInVehicle("player") == true or
-    UnitOnTaxi("player") == true then
-      return "no"
+  if IsFlying() == true or UnitInVehicle("player") == true or UnitOnTaxi("player") == true then
+    return "no"
   end
 
   return "yes"
@@ -175,17 +189,15 @@ end
 
 function ZonePet_userIsBusyReason()
   if zonePetMiniMap.notInPvP == true and ZonePet_isInPvP() == true then
-    return 'in PvP'
+    return "in PvP"
   end
 
   if zonePetMiniMap.notInGroup == true and ZonePet_isGrouped() == true then
-    return 'in a group'
+    return "in a group"
   end
 
-  if IsFlying() == true or 
-    UnitInVehicle("player") == true or
-    UnitOnTaxi("player") == true then
-      return "in a vehicle"
+  if IsFlying() == true or UnitInVehicle("player") == true or UnitOnTaxi("player") == true then
+    return "in a vehicle"
   end
 
   local spellName, _, _, _, _, _, _, _, _, _ = UnitCastingInfo("player")
@@ -195,15 +207,14 @@ function ZonePet_userIsBusyReason()
   local isStealthed = IsStealthed() or ZonePet_Stealthed
   local lootWindowCount = GetNumLootItems()
 
-
   if inCombat == true then
-      return "in combat"
+    return "in combat"
   end
   if isDead == true then
-      return "dead"
+    return "dead"
   end
   if spellName ~= nil or channelName ~= nil or ZonePet_IsChannelling == true then
-      return "casting a spell"
+    return "casting a spell"
   end
   if lootWindowCount > 0 then
     return "looting"
