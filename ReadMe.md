@@ -65,6 +65,7 @@ Mouse over the MiniMap button to see details about your currently summoned pet (
 
 ### Version History
 
+- v 2.8.2: Real fix for locked pets being replaced.
 - v 2.8.1: Fix for locked pets being replaced.
 - v 2.8.0: Refreshed list of pet interactions. Select interactive pet to do action.
 - v 2.7.2: Updated for 12.0.5.

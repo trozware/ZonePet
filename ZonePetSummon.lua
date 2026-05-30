@@ -30,6 +30,10 @@ function ZonePet_shouldSummonSamePet()
 end
 
 function ZonePet_petIsFromThisZone(currentPetID)
+  if currentPetID == nil then
+    return false
+  end
+
   local speciesID,
     customName,
     level,
@@ -74,6 +78,7 @@ function ZonePet_summonPreviousPet()
   end
 
   if ZonePet_PrevPetID ~= nil then
+    -- print("summoning previous pet, lock pet set to true")
     ZonePet_LockPet = true
     C_PetJournal.SummonPetByGUID(ZonePet_PrevPetID)
     ZonePet_checkSummon(ZonePet_PrevPetID)
@@ -83,7 +88,10 @@ function ZonePet_summonPreviousPet()
 end
 
 function ZonePet_lockCurrentPet()
+  -- print("locking current pet: lock pet set to true")
   ZonePet_LockPet = true
+  ZonePet_LastPetID = C_PetJournal.GetSummonedPetGUID()
+  -- print("ZonePet_LastPetID: " .. ZonePet_LastPetID)
 end
 
 function ZonePet_summonPet(zoneName)
@@ -440,8 +448,11 @@ function ZonePet_checkSummonedPet(zoneName)
       end
 
       local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
-      ZonePet_PrevPetID = ZonePet_LastPetID
-      ZonePet_LastPetID = summonedPetGUID
+      if summonedPetGUID == ZonePet_LastPetID then
+        ZonePet_PrevPetID = ZonePet_LastPetID
+        ZonePet_LastPetID = summonedPetGUID
+      -- print("ZonePet_LastPetID: " .. ZonePet_LastPetID)
+      end
 
       if summonedPetGUID and #summonedPetGUID > 0 then
         local speciesID,
@@ -467,6 +478,10 @@ function ZonePet_checkSummonedPet(zoneName)
         local zoneMatches = false
         if sourceText and string.find(sourceText, zoneName) then
           zoneMatches = true
+        end
+
+        if name == ZonePet_LastChatName then
+          showChat = false
         end
 
         if showChat then
@@ -508,6 +523,7 @@ function ZonePet_checkSummonedPet(zoneName)
           end
 
           ZonePet_LastChatReport = now
+          ZonePet_LastChatName = name
         end
 
         ZonePet_LastError = 0

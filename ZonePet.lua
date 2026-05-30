@@ -10,6 +10,7 @@ ZonePet_LastPetID = nil
 ZonePet_PrevPetID = nil
 ZonePet_LockPet = false
 ZonePet_LastChatReport = 0
+ZonePet_LastChatName = nil
 
 ZonePet_Stealthed = IsStealthed()
 ZonePet_PreviousMessage = ""
@@ -84,6 +85,7 @@ function ZonePet_initMiniMapButton()
           elseif IsShiftKeyDown() then
             ZonePet_summonPreviousPet()
           else
+            -- print("click in minimap without mod, lock pet set to false")
             ZonePet_LockPet = false
             local noSummonReason = ZonePet_summonForZone()
             ZonePet_showReasonForNotSummoning(noSummonReason)
@@ -125,6 +127,15 @@ function ZonePet_showTooltip(tooltip)
   tooltip:SetText("ZonePet", 1, 1, 1)
 
   if petData then
+    local summonedPetID = C_PetJournal.GetSummonedPetGUID()
+    if summonedPetID and summonedPetID ~= ZonePet_LastPetID then
+      ZonePet_PrevPetID = ZonePet_LastPetID
+      ZonePet_LastPetID = summonedPetID
+      ZonePet_LockPet = false
+    -- print("Showing tooltip for different pet: lock pet set to false")
+    -- print("ZonePet_LastPetID: " .. ZonePet_LastPetID)
+    end
+
     tooltip:AddLine(" ")
     tooltip:AddLine(" ")
     tooltip:AddTexture(petData.icon, {width = 32, height = 32})
