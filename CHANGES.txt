@@ -1,3 +1,4 @@
+- v 2.9.0: Locked pets now persist across logins. This is account-wide, not character-specific.
 - v 2.8.2: Real fix for locked pets being replaced.
 - v 2.8.1: Fix for locked pets being replaced.
 - v 2.8.0: Refreshed list of pet interactions. Select interactive pet to do action.

@@ -69,10 +69,9 @@ function ZonePet_searchForPet(command)
   end
 
   if matchingID ~= nil then
-    -- print("search for pet, lock pet set to true")
-    ZonePet_LockPet = true
+    zonePetMiniMap.lockPet = true
+    zonePetMiniMap.lockedPetID = matchingID
     ZonePet_LastPetID = matchingID
-    -- print("ZonePet_LastPetID: " .. ZonePet_LastPetID)
 
     C_PetJournal.SummonPetByGUID(matchingID)
     local zone = GetZoneText()

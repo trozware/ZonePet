@@ -1,10 +1,15 @@
 function ZonePet_shouldSummonSamePet()
   -- existing pet ID already confirmed
-  if ZonePet_LockPet == true then
+  if zonePetMiniMap.lockPet == true and zonePetMiniMap.lockedPetID then
     if ZonePet_userIsFree() == "yes" then
-      C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
-      ZonePet_checkSummon(ZonePet_LastPetID)
-      ZonePet_checkSummonedPet(GetZoneText())
+      local lockedPetID = zonePetMiniMap.lockedPetID
+      if C_PetJournal.GetSummonedPetGUID() ~= lockedPetID then
+        local speciesID, _, _, _, _, _, _, speciesName = C_PetJournal.GetPetInfoByPetID(lockedPetID)
+        if not ZonePet_isBlockedPet(lockedPetID, speciesID, speciesName) then
+          C_PetJournal.SummonPetByGUID(lockedPetID)
+          ZonePet_checkSummonedPet(GetZoneText())
+        end
+      end
     end
     return
   end
@@ -23,9 +28,11 @@ function ZonePet_shouldSummonSamePet()
     return
   end
 
-  if ZonePet_userIsFree() == "yes" then
-    C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
-    ZonePet_checkSummon(ZonePet_LastPetID)
+  if ZonePet_userIsFree() == "yes" and C_PetJournal.GetSummonedPetGUID() ~= ZonePet_LastPetID then
+    local speciesID, _, _, _, _, _, _, speciesName = C_PetJournal.GetPetInfoByPetID(ZonePet_LastPetID)
+    if not ZonePet_isBlockedPet(ZonePet_LastPetID, speciesID, speciesName) then
+      C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
+    end
   end
 end
 
@@ -66,6 +73,15 @@ end
 
 function ZonePet_summonForZone()
   local zone = GetZoneText()
+
+  if
+    zonePetMiniMap.lockPet == true and zonePetMiniMap.lockedPetID and
+      C_PetJournal.GetSummonedPetGUID() ~= zonePetMiniMap.lockedPetID
+   then
+    C_PetJournal.SummonPetByGUID(zonePetMiniMap.lockedPetID)
+    ZonePet_checkSummonedPet(zone)
+  end
+
   if zone ~= nil and zone ~= "" then
     return ZonePet_summonPet(zone)
   end
@@ -78,20 +94,44 @@ function ZonePet_summonPreviousPet()
   end
 
   if ZonePet_PrevPetID ~= nil then
-    -- print("summoning previous pet, lock pet set to true")
-    ZonePet_LockPet = true
-    C_PetJournal.SummonPetByGUID(ZonePet_PrevPetID)
-    ZonePet_checkSummon(ZonePet_PrevPetID)
-    local zone = GetZoneText()
-    ZonePet_checkSummonedPet(zone)
+    local speciesID, _, _, _, _, _, _, speciesName = C_PetJournal.GetPetInfoByPetID(ZonePet_PrevPetID)
+    if not ZonePet_isBlockedPet(ZonePet_PrevPetID, speciesID, speciesName) then
+      zonePetMiniMap.lockPet = true
+      zonePetMiniMap.lockedPetID = ZonePet_PrevPetID
+      C_PetJournal.SummonPetByGUID(ZonePet_PrevPetID)
+      local zone = GetZoneText()
+      ZonePet_checkSummonedPet(zone)
+    end
   end
 end
 
 function ZonePet_lockCurrentPet()
-  -- print("locking current pet: lock pet set to true")
-  ZonePet_LockPet = true
-  ZonePet_LastPetID = C_PetJournal.GetSummonedPetGUID()
-  -- print("ZonePet_LastPetID: " .. ZonePet_LastPetID)
+  zonePetMiniMap.lockPet = true
+  zonePetMiniMap.lockedPetID = C_PetJournal.GetSummonedPetGUID()
+  ZonePet_LastPetID = zonePetMiniMap.lockedPetID
+end
+
+function ZonePet_isBlockedPet(petID, speciesID, speciesName)
+  if petID == nil then
+    return true
+  end
+
+  if petID == "BattlePet-0-0000122C75EA" then
+    return true
+  end
+
+  if speciesName then
+    local normalizedName = string.lower(speciesName)
+    if normalizedName == "disgusting oozeling" then
+      return true
+    end
+  end
+
+  if speciesID == 114 then
+    return true
+  end
+
+  return false
 end
 
 function ZonePet_summonPet(zoneName)
@@ -103,10 +143,7 @@ function ZonePet_summonPet(zoneName)
   end
 
   if ZonePet_Stealthed == true or IsStealthed() then
-    -- if ZonePet_isInPvP() then
     ZonePet_dismissCurrentPet()
-    -- end
-    -- ZonePet_displayMessage("|c0000FF00ZonePet: " .. "|c0000FFFFStealth - no pet summoned.")
     return "in stealth"
   end
 
@@ -149,7 +186,7 @@ function ZonePet_summonPet(zoneName)
 
     allowPet = true
     -- NEVER summon Disgusting Oozeling as it has negative effect
-    if petID == nil or petID == "BattlePet-0-0000122C75EA" or speciesName == "Disgusting Oozeling" or speciesID == 114 then
+    if ZonePet_isBlockedPet(petID, speciesID, speciesName) then
       allowPet = false
     end
 
@@ -264,7 +301,6 @@ function ZonePet_summonPet(zoneName)
 
     if id ~= summonedPetGUID then
       C_PetJournal.SummonPetByGUID(id)
-      ZonePet_checkSummon(id)
       ZonePet_checkSummonedPet(zoneName)
     end
   end
@@ -284,12 +320,8 @@ function ZonePet_summonRandomPet(zoneName, startingPets)
     pcall(
       function()
         C_PetJournal.SummonPetByGUID(favPetId)
-        ZonePet_checkSummon(favPetId)
       end
     )
-  else
-    -- print('Using built-in random')
-    C_PetJournal.SummonRandomPet(true)
   end
 
   ZonePet_checkSummonedPet(zoneName)
@@ -324,7 +356,9 @@ function ZonePet_pickRandomPet(favsOnly, startingPets)
       obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
     if petID and owned then
-      if zonePetMiniMap.favsOnly == false or favorite == true then
+      if ZonePet_isBlockedPet(petID, speciesID, speciesName) then
+        -- skip blocked pets
+      elseif zonePetMiniMap.favsOnly == false or favorite == true then
         local isMatch = true
         if zonePetMiniMap.noSpiders then
           if ZonePet_petIsSpider(speciesName) then
@@ -338,13 +372,8 @@ function ZonePet_pickRandomPet(favsOnly, startingPets)
     end
   end
 
-  -- if #petList == 0 then
-  --   print('No random pets')
-  --   return -1
-  -- end
-
   if #petList == 0 then
-    return {}
+    return "-1"
   end
 
   if #petList == 1 then
@@ -388,7 +417,9 @@ function ZonePet_addRandomPets(validPets, favsOnly, count)
       obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
     if petID and owned then
-      if zonePetMiniMap.favsOnly == false or favorite == true then
+      if ZonePet_isBlockedPet(petID, speciesID, speciesName) then
+        -- skip blocked pets
+      elseif zonePetMiniMap.favsOnly == false or favorite == true then
         local isMatch = true
         if zonePetMiniMap.noSpiders then
           if ZonePet_petIsSpider(speciesName) then
@@ -451,7 +482,6 @@ function ZonePet_checkSummonedPet(zoneName)
       if summonedPetGUID == ZonePet_LastPetID then
         ZonePet_PrevPetID = ZonePet_LastPetID
         ZonePet_LastPetID = summonedPetGUID
-      -- print("ZonePet_LastPetID: " .. ZonePet_LastPetID)
       end
 
       if summonedPetGUID and #summonedPetGUID > 0 then
@@ -622,20 +652,6 @@ function ZonePet_chatDescription(summonedPetGUID)
   end
 end
 
-function ZonePet_checkSummon(petID)
-  -- This is causing endless streams of GCD usage at places like Rostrum of Transformation
-  -- It's used in several places, but I think removing it is the better option
-  -- C_Timer.After(1,
-  --   function()
-  --     local summonedPetGUID = C_PetJournal.GetSummonedPetGUID()
-  --     if not summonedPetGUID and petID then
-  --       C_PetJournal.SummonPetByGUID(petID)
-  --       ZonePet_checkSummon(petID)
-  --     end
-  --   end
-  -- )
-end
-
 function ZonePet_dismissCurrentPet()
   if InCombatLockdown() == true or UnitIsDeadOrGhost("player") then
     return
@@ -736,32 +752,17 @@ end
 
 function ZonePet_isInPvP()
   if UnitIsPVP("player") then
-    -- print("UnitIsPVP")
     ZonePet_IsPvP = true
     return true
   end
 
   local _, instanceType = IsInInstance()
-  -- print('Instance type: ' .. instanceType)
   if instanceType == "pvp" or instanceType == "arena" then
     ZonePet_IsPvP = true
     return true
   end
 
   if C_PvP.IsBattleground() or C_PvP.IsActiveBattlefield() or C_PvP.IsInBrawl() or C_PvP.IsWarModeActive() then
-    -- if C_PvP.IsBattleground() then
-    --   print('in battleground')
-    -- end
-    -- if C_PvP.IsActiveBattlefield() then
-    --   print('in battlefield')
-    -- end
-    -- if C_PvP.IsInBrawl() then
-    --   print('in brawl')
-    -- end
-    -- if C_PvP.IsWarModeActive() then
-    --   print('in war mode')
-    -- end
-
     ZonePet_IsPvP = true
     return true
   end
@@ -772,18 +773,10 @@ end
 
 function ZonePet_isGrouped()
   if IsInGroup() or IsInRaid() then
-    -- if IsInGroup() then
-    --   print('in group')
-    -- end
-    -- if IsInRaid() then
-    --   print('in raid')
-    -- end
-
     return true
   end
 
   if UnitInAnyGroup() then
-    -- print('in any group')
     return true
   end
 
@@ -796,7 +789,7 @@ function ZonePet_changePvPOption(newSetting)
     if newSetting == true then
       ZonePet_dismissCurrentPet()
     else
-      ZonePet_summonForZone()
+      ZonePet_processEvent()
     end
   end
 end
@@ -807,7 +800,7 @@ function ZonePet_changeGroupOption(newSetting)
     if newSetting == true then
       ZonePet_dismissCurrentPet()
     else
-      ZonePet_summonForZone()
+      ZonePet_processEvent()
     end
   end
 end
@@ -884,7 +877,7 @@ function ZonePet_Tests()
       obtainable = C_PetJournal.GetPetInfoByIndex(n)
 
     if speciesName == "Gillvanas" or speciesName == "Finduin" or speciesName == "Disgusting Oozeling" then
-      --   print(tooltip)
+      print(tooltip)
       print(speciesName, speciesID, petID)
     end
     -- if not petID then

@@ -12,11 +12,19 @@ ZonePet_EventFrame:RegisterEvent("WAR_MODE_STATUS_UPDATE")
 ZonePet_EventFrame:RegisterEvent("UNIT_FLAGS")
 ZonePet_EventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 ZonePet_EventFrame:RegisterEvent("COMPANION_UPDATE")
+ZonePet_EventFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
 
 ZonePet_EventFrame:SetScript(
   "OnEvent",
   function(self, event, extraInfo, ...)
+    -- if event ~= "COMPANION_UPDATE" then
     -- print(event)
+    -- end
+
+    if ZonePet_InitComplete == false and event ~= "VARIABLES_LOADED" and event ~= "PLAYER_LOGIN" then
+      return
+    end
+
     if event == "VARIABLES_LOADED" then
       ZonePet:Initialize()
     elseif event == "UPDATE_STEALTH" then
@@ -28,15 +36,19 @@ ZonePet_EventFrame:SetScript(
       end
     elseif event == "PLAYER_LOGIN" then
       -- data not ready immediately but force update in 5 seconds
+      ZonePet_InitComplete = false
       ZonePet_ShowWelcome()
       C_Timer.After(
         5,
         function()
           ZonePet_LastPetChange = 0
           ZonePet_processEvent()
+          ZonePet_InitComplete = true
         end
       )
-    elseif event == "PLAYER_MOUNT_DISPLAY_CHANGED" or event == "UPDATE_SHAPESHIFT_FORM" then
+    elseif
+      event == "PLAYER_MOUNT_DISPLAY_CHANGED" or event == "UPDATE_SHAPESHIFT_FORM" or event == "UNIT_EXITED_VEHICLE"
+     then
       C_Timer.After(
         3,
         function()
@@ -53,7 +65,7 @@ ZonePet_EventFrame:SetScript(
         if ZonePet_isInPvP() == true and prevPvP == false then
           ZonePet_dismissCurrentPet()
         elseif ZonePet_isInPvP() == false and prevPvP == true then
-          ZonePet_summonForZone()
+          ZonePet_processEvent()
         end
       end
     elseif event == "PLAYER_TARGET_CHANGED" then
@@ -74,7 +86,6 @@ ZonePet_EventFrame:SetScript(
 
 function ZonePet_processEvent()
   local shouldProcess = ZonePet_shouldProcessEvent()
-  -- print("shouldProcess: " .. shouldProcess)
   if shouldProcess == "no" then
     return
   elseif shouldProcess == "delay" then
@@ -93,10 +104,9 @@ function ZonePet_processEvent()
   end
   ZonePet_LastEventTrigger = now
 
-  if ZonePet_LockPet == true and ZonePet_LastPetID then
-    if C_PetJournal.GetSummonedPetGUID() ~= ZonePet_LastPetID then
-      C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
-      ZonePet_checkSummon(ZonePet_LastPetID)
+  if zonePetMiniMap.lockPet == true and zonePetMiniMap.lockedPetID then
+    if C_PetJournal.GetSummonedPetGUID() ~= zonePetMiniMap.lockedPetID then
+      C_PetJournal.SummonPetByGUID(zonePetMiniMap.lockedPetID)
       ZonePet_checkSummonedPet(GetZoneText())
     end
     return
@@ -110,7 +120,6 @@ function ZonePet_processEvent()
     return
   end
 
-  -- print("process event: lock pet set to false")
   ZonePet_summonForZone()
 end
 
@@ -131,13 +140,8 @@ function ZonePet_processMountEvent()
   local currentPetID = C_PetJournal.GetSummonedPetGUID()
   if currentPetID == nil then
     ZonePet_LastError = 0
-    if ZonePet_LastPetID == nil then
-      -- print("process mount event: no last pet ID, lock pet set to false")
-      ZonePet_LockPet = false
-      ZonePet_processEvent()
-    elseif ZonePet_LockPet == true then
-      C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
-      ZonePet_checkSummon(ZonePet_LastPetID)
+    if zonePetMiniMap.lockPet == true and zonePetMiniMap.lockedPetID then
+      C_PetJournal.SummonPetByGUID(zonePetMiniMap.lockedPetID)
       ZonePet_checkSummonedPet(GetZoneText())
     else
       ZonePet_processEvent()
@@ -156,7 +160,6 @@ end
 
 function ZonePet_shouldProcessEvent()
   if ZonePet_HaveDismissed == true then
-    -- or ZonePet_LockPet == true then
     return "no"
   end
 
@@ -240,16 +243,17 @@ end
 function ZonePet_checkForSummonedPet()
   local summonedPet = C_PetJournal.GetSummonedPetGUID()
   if summonedPet and summonedPet ~= ZonePet_LastPetID then
-    -- print("User has summoned different pet: lock pet set to false")
-    -- print("ZonePet_LastPetID: " .. ZonePet_LastPetID)
+    if zonePetMiniMap.lockPet and zonePetMiniMap.lockedPetID and summonedPet == zonePetMiniMap.lockedPetID then
+      return
+    end
     ZonePet_PrevPetID = ZonePet_LastPetID
     ZonePet_LastPetID = summonedPet
-    ZonePet_LockPet = false
+    zonePetMiniMap.lockPet = false
+    zonePetMiniMap.lockedPetID = nil
   elseif not summonedPet then
-    if ZonePet_LockPet and ZonePet_LastPetID then
+    if zonePetMiniMap.lockPet and zonePetMiniMap.lockedPetID then
       if ZonePet_shouldProcessEvent() == "yes" then
-        C_PetJournal.SummonPetByGUID(ZonePet_LastPetID)
-        ZonePet_checkSummon(ZonePet_LastPetID)
+        C_PetJournal.SummonPetByGUID(zonePetMiniMap.lockedPetID)
         ZonePet_checkSummonedPet(GetZoneText())
       end
     end

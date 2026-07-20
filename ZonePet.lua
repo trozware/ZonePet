@@ -8,10 +8,10 @@ ZonePet_LastEventTrigger = 0
 ZonePet_LastError = 0
 ZonePet_LastPetID = nil
 ZonePet_PrevPetID = nil
-ZonePet_LockPet = false
 ZonePet_LastChatReport = 0
 ZonePet_LastChatName = nil
 
+ZonePet_InitComplete = false
 ZonePet_Stealthed = IsStealthed()
 ZonePet_PreviousMessage = ""
 ZonePet_HaveDismissed = false
@@ -43,12 +43,17 @@ function ZonePet:Initialize()
       hideInfo = false,
       slowInfo = false,
       ignores = {},
-      interactOnSelection = true
+      interactOnSelection = true,
+      lockPet = false,
+      lockedPetID = nil
     }
   end
 
   if not zonePetMiniMap.interactOnSelection then
     zonePetMiniMap.interactOnSelection = true
+  end
+  if zonePetMiniMap.lockPet == nil then
+    zonePetMiniMap.lockPet = false
   end
 
   ZonePet_addInterfaceOptions()
@@ -85,8 +90,8 @@ function ZonePet_initMiniMapButton()
           elseif IsShiftKeyDown() then
             ZonePet_summonPreviousPet()
           else
-            -- print("click in minimap without mod, lock pet set to false")
-            ZonePet_LockPet = false
+            zonePetMiniMap.lockPet = false
+            zonePetMiniMap.lockedPetID = nil
             local noSummonReason = ZonePet_summonForZone()
             ZonePet_showReasonForNotSummoning(noSummonReason)
           end
@@ -127,15 +132,6 @@ function ZonePet_showTooltip(tooltip)
   tooltip:SetText("ZonePet", 1, 1, 1)
 
   if petData then
-    local summonedPetID = C_PetJournal.GetSummonedPetGUID()
-    if summonedPetID and summonedPetID ~= ZonePet_LastPetID then
-      ZonePet_PrevPetID = ZonePet_LastPetID
-      ZonePet_LastPetID = summonedPetID
-      ZonePet_LockPet = false
-    -- print("Showing tooltip for different pet: lock pet set to false")
-    -- print("ZonePet_LastPetID: " .. ZonePet_LastPetID)
-    end
-
     tooltip:AddLine(" ")
     tooltip:AddLine(" ")
     tooltip:AddTexture(petData.icon, {width = 32, height = 32})
@@ -160,7 +156,8 @@ function ZonePet_showTooltip(tooltip)
   end
 
   if petData then
-    if ZonePet_LockPet == true then
+    if zonePetMiniMap.lockPet == true then
+      zonePetMiniMap.lockedPetID = C_PetJournal.GetSummonedPetGUID()
       tooltip:AddLine("You have locked in your current pet.")
       tooltip:AddLine("Left-click to summon a different pet.")
     else
@@ -193,7 +190,8 @@ function ZonepetCommandHandler(msg)
     ZonePet_HaveDismissed = true
     ZonePet_dismissCurrentPet()
   elseif msg == "change" or msg == "new" then
-    ZonePet_LockPet = false
+    zonePetMiniMap.lockPet = false
+    zonePetMiniMap.lockedPetID = nil
     local noSummonReason = ZonePet_summonForZone()
     ZonePet_showReasonForNotSummoning(noSummonReason)
   elseif msg == "all" then
@@ -364,23 +362,6 @@ function ZonePet_addInterfaceOptions()
   )
   y = y - 40
 
-  -- local favButton = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
-  -- favButton:SetSize(160,26)
-  -- favButton:SetText('Set All as Favorite')
-  -- favButton:SetPoint('TOPLEFT', 40, y)
-  -- favButton:SetScript("OnClick",function()
-  --   ZonePet_toggleFav(true)
-  -- end)
-
-  -- local unfavButton = CreateFrame("Button", nil, ZonePet.panel, "UIPanelButtonTemplate")
-  -- unfavButton:SetSize(160,26)
-  -- unfavButton:SetText('Set None as Favorite')
-  -- unfavButton:SetPoint('TOPLEFT', 220, y)
-  -- unfavButton:SetScript("OnClick",function()
-  --   ZonePet_toggleFav(false)
-  -- end)
-  -- y = y - 40
-
   local btn3 = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
   btn3:SetSize(26, 26)
   btn3:SetHitRectInsets(-2, -100, -2, -2)
@@ -475,7 +456,7 @@ function ZonePet_addInterfaceOptions()
   btn6.text:SetText("  Lock in current pet")
   btn6.text:SetFontObject("GameFontNormal")
   btn6:SetPoint("TOPLEFT", 40, y)
-  btn6:SetChecked(ZonePet_LockPet)
+  btn6:SetChecked(zonePetMiniMap.lockPet)
   btn6:SetScript(
     "OnClick",
     function()
@@ -484,7 +465,8 @@ function ZonePet_addInterfaceOptions()
         ZonePet_lockCurrentPet()
         ZonePet_showTooltip(ZonePet_Tooltip)
       else
-        ZonePet_LockPet = false
+        zonePetMiniMap.lockPet = false
+        zonePetMiniMap.lockedPetID = nil
         ZonePet_summonForZone()
       end
     end
@@ -585,28 +567,6 @@ function ZonePet_addInterfaceOptions()
   ZonePet_ignoresList:SetWidth(120)
   ZonePet_ignoresList:SetPoint("TOPLEFT", 400, y)
   ZonePet_ignoresList:SetText(ZonePet_ListIgnores())
-end
-
-function ZonePet_toggleFav(setting)
-  -- C_PetJournal.SetAllPetTypesChecked(true)
-  -- C_PetJournal.SetAllPetSourcesChecked(true)
-  -- C_PetJournal.ClearSearchFilter()
-  -- local numPets, numOwned = C_PetJournal.GetNumPets()
-  -- for n = 1, numOwned do
-  --   local petID, speciesID, owned, customName, level, favorite, isRevoked,
-  --   speciesName, icon, petType, companionID, tooltip, description,
-  --   isWild, canBattle, isTradeable, isUnique, obtainable = C_PetJournal.GetPetInfoByIndex(n)
-  --   -- if setting == favorite then
-  --     print('Setting ' .. speciesName)
-  --     if setting == true then
-  --       C_PetJournal.SetFavorite(petID, 1)
-  --     else
-  --       C_PetJournal.SetFavorite(petID, 0)
-  --     end
-  --   -- else
-  --   --   print(speciesName .. ' already set')
-  --   -- end
-  -- end
 end
 
 function ZonePet_IgnorePet(name)
