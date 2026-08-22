@@ -1,4 +1,4 @@
-- v 2.9.1: Updated for 12.1.0. Allows selecting from any zone in Game Menu > Interface > AddOns > ZonePet.
+- v 2.9.1: Updated for 12.1.0. Allows selecting from any zone in Game Menu > Options > AddOns > ZonePet.
 - v 2.9.0: Locked pets now persist across logins. This is account-wide, not character-specific.
 - v 2.8.2: Real fix for locked pets being replaced.
 - v 2.8.1: Fix for locked pets being replaced.
