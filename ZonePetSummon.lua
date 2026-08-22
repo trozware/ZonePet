@@ -227,6 +227,10 @@ function ZonePet_summonPet(zoneName)
       tooltip = nil
     end
 
+    if zonePetMiniMap.useAnyZone == true then
+      validZone = true
+    end
+
     if allowPet and owned and tooltip and validZone then
       if zonePetMiniMap.favsOnly == false or favorite == true then
         local isMatch = true
@@ -519,7 +523,12 @@ function ZonePet_checkSummonedPet(zoneName)
           if zonePetMiniMap.favsOnly then
             favText = "favorite "
           end
-          if zoneMatches == false or zoneName == "" then
+
+          if zonePetMiniMap.lockPet == true and zonePetMiniMap.lockedPetID then
+            ZonePet_displayMessage(
+              "|c0000FF00ZonePet: " .. "|c0000FFFFSummoned locked " .. "pet: " .. "|c00FFD100" .. name .. "."
+            )
+          elseif zoneMatches == false or zoneName == "" or zonePetMiniMap.useAnyZone == true then
             ZonePet_displayMessage(
               "|c0000FF00ZonePet: " .. "|c0000FFFFSummoned random " .. favText .. "pet: " .. "|c00FFD100" .. name .. "."
             )

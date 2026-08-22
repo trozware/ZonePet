@@ -13,7 +13,7 @@ You may have collected hundreds of pets, but you never remember to summon them s
 **ZonePet** checks all your pets and tries to summon a pet that is native to your current zone.
 If you have no pets or only a few pets from the zone, you may see a random pet instead.
 
-If **ZonePet** summons a pet you want to keep around for a while, you can lock it in so that it stays your pet until you choose another. This persists across logins if you log-off correctly. The lock is account-wide and not character-specific. And you can go back to the previous pet if you missed it.
+If you have an active pet you want to keep around for a while, you can lock it in so that it stays your pet until you choose another. This persists across logins if you log off correctly. The lock is account-wide and not character-specific. And you can go back to the previous pet if you missed it.
 
 If you want to summon a particular pet, **ZonePet** will search your pets for a pet matching the name you enter.
 
@@ -65,6 +65,7 @@ Mouse over the MiniMap button to see details about your currently summoned pet (
 
 ### Version History
 
+- v 2.9.1: Updated for 12.1.0. Allows selecting from any zone in Game Menu > Interface > AddOns > ZonePet.
 - v 2.9.0: Locked pets now persist across logins. This is account-wide, not character-specific.
 - v 2.8.2: Real fix for locked pets being replaced.
 - v 2.8.1: Fix for locked pets being replaced.

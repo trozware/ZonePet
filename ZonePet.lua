@@ -45,7 +45,8 @@ function ZonePet:Initialize()
       ignores = {},
       interactOnSelection = true,
       lockPet = false,
-      lockedPetID = nil
+      lockedPetID = nil,
+      useAnyZone = false
     }
   end
 
@@ -54,6 +55,9 @@ function ZonePet:Initialize()
   end
   if zonePetMiniMap.lockPet == nil then
     zonePetMiniMap.lockPet = false
+  end
+  if zonePetMiniMap.useAnyZone == nil then
+    zonePetMiniMap.useAnyZone = false
   end
 
   ZonePet_addInterfaceOptions()
@@ -341,6 +345,23 @@ function ZonePet_addInterfaceOptions()
     function()
       local isChecked = btn2:GetChecked()
       zonePetMiniMap.favsOnly = isChecked
+      ZonePet_summonForZone()
+    end
+  )
+  y = y - 40
+
+  local ignoreZoneBtn = CreateFrame("CheckButton", nil, ZonePet.panel, "UICheckButtonTemplate")
+  ignoreZoneBtn:SetSize(26, 26)
+  ignoreZoneBtn:SetHitRectInsets(-2, -200, -2, -2)
+  ignoreZoneBtn.text:SetText("  Select from any zone ** NEW **")
+  ignoreZoneBtn.text:SetFontObject("GameFontNormal")
+  ignoreZoneBtn:SetPoint("TOPLEFT", 40, y)
+  ignoreZoneBtn:SetChecked(zonePetMiniMap.useAnyZone)
+  ignoreZoneBtn:SetScript(
+    "OnClick",
+    function()
+      local isChecked = ignoreZoneBtn:GetChecked()
+      zonePetMiniMap.useAnyZone = isChecked
       ZonePet_summonForZone()
     end
   )

@@ -5,6 +5,7 @@ Keeps a pet active at all times, using a pet native to the current zone if possi
 Will not change more than once every 5 minutes, unless you lose your pet.
 If you do not have any pets from a zone or only a few, you will get a random pet instead.
 
+v 2.9.1: Updated for 12.1.0. Allows selecting from any zone in Game Menu > Interface > AddOns > ZonePet.
 v 2.9.0: Locked pets now persist across logins. This is account-wide, not character-specific.
 v 2.8.2: Real fix for locked pets being replaced.
 v 2.8.1: Fix for locked pets being replaced.
